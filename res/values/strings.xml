@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Smart Controller</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="nc_header_text">网络配置</string>
+    <string name="nc_ssid_text">SSID</string>
+    <string name="nc_passwd_text">Passwd</string>
+    <string name="nc_dev_name_text">Device Name</string>
+    <string name="nc_start_text">开始配置</string>
+    <string name="website">www.163.com</string>
+    <string name="nc_stop_text">停止配置</string>
+
+</resources>

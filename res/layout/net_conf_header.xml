@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/nc_header_bg"
+    android:minHeight="@dimen/nc_header_height" >
+
+    <TextView
+        android:id="@+id/nc_header_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/nc_header_text"
+        android:textColor="@color/white"
+        android:textSize="@dimen/nc_header_text_size"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/back_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/min_margin_cutoff"
+        android:background="@drawable/nc_back_btn"
+        android:visibility="gone" />
+
+</RelativeLayout>

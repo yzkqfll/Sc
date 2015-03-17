@@ -1,0 +1,15 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nc_header_text_size">20dip</dimen>
+    <dimen name="nc_header_height">50dip</dimen>
+    <dimen name="nc_footer_height">40dip</dimen><dimen name="min_margin_cutoff">10dip</dimen>
+    <dimen name="nc_input_text_size">16dip</dimen>
+    <dimen name="nc_min_divider_height">1dip</dimen>
+    <dimen name="nc_max_margin_size">15dip</dimen>
+    <dimen name="nc_min_margin_cutoff">10dip</dimen>
+    
+
+</resources>
