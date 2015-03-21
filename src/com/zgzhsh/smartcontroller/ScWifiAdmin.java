@@ -15,209 +15,245 @@ import android.os.Build;
 
 public class ScWifiAdmin {
 	private static final int BUILD_VERSION_JELLYBEAN = 17;
-	
+
 	/**
 	 * Called activity context
 	 */
-	private  Context mContext = null;	
-	
-	public ScWifiAdmin(Context c) {		
-		mContext = c;		
+	private Context mContext = null;
+
+	public ScWifiAdmin(Context c) {
+		mContext = c;
 	}
-		
+
 	public boolean isConnected() {
-		ConnectivityManager connectivityManager = 
-				(ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = 
-				connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI); /* permission ACCESS_NETWORK_STATE */		
-		
-		return networkInfo.isConnected();			
+		ConnectivityManager connectivityManager = (ConnectivityManager) mContext
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connectivityManager
+				.getNetworkInfo(ConnectivityManager.TYPE_WIFI); /* ACCESS_NETWORK_STATE */
+
+		return networkInfo.isConnected();
 	}
-		
+
 	public String getSSID() {
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
-		WifiInfo wInfo = wifiManager.getConnectionInfo();	/* permission ACCESS_WIFI_STATE */	 
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
+		WifiInfo wInfo = wifiManager.getConnectionInfo(); /* ACCESS_WIFI_STATE */
 		String ssid = wInfo.getSSID();
-		
+
 		if (!isConnected())
 			return null;
-				
+
 		if (ssid.equals("<unknown ssid>") || ssid.equals("0x")) {
 			System.out.println("[WifiAdmin] ssid is " + ssid);
 			System.out.println("[WifiAdmin] change to \"\"");
 			return "";
 		}
-		
+
 		if (Build.VERSION.SDK_INT >= BUILD_VERSION_JELLYBEAN) {
 			if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
-				ssid = ssid.substring(1, ssid.length()-1);
+				ssid = ssid.substring(1, ssid.length() - 1);
 			}
 		}
-		
-		return ssid;		
+
+		return ssid;
 	}
-	
+
 	public String getGateway() {
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);		
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
 		int gateway = wifiManager.getDhcpInfo().gateway;
-				
+
 		return (String.format("%d.%d.%d.%d", (gateway & 0xff),
-				(gateway >> 8 & 0xff),
-				(gateway >> 16 & 0xff),
+				(gateway >> 8 & 0xff), (gateway >> 16 & 0xff),
 				(gateway >> 24 & 0xff))).toString();
 	}
-	
+
 	public boolean isWifiEnabled() {
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
-		
-		return wifiManager.isWifiEnabled();						
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
+
+		return wifiManager.isWifiEnabled();
 	}
-	
+
 	public boolean setWifiEnabled() {
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
-		
-		if (!wifiManager.isWifiEnabled()) 
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
+
+		if (!wifiManager.isWifiEnabled())
 			return wifiManager.setWifiEnabled(true);
-		
+
 		return true;
 	}
-	
+
 	public boolean setWifiDisabled() {
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
-		
-		if (wifiManager.isWifiEnabled()) 
-			return wifiManager.setWifiEnabled(false);		
-		
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
+
+		if (wifiManager.isWifiEnabled())
+			return wifiManager.setWifiEnabled(false);
+
 		return true;
 	}
-	
+
 	public int getWifiState() {
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
-		
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
+
 		return wifiManager.getWifiState();
 	}
-		
+
 	private List<ScanResult> getScanResults(boolean print) {
-		
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
+
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
 		List<ScanResult> scanResults;
-		
-		wifiManager.startScan(); /* CHANGE_WIFI_STATE */		
+
+		wifiManager.startScan(); /* CHANGE_WIFI_STATE */
 		scanResults = wifiManager.getScanResults();
-		
+
 		if (print) {
 			for (int i = 0; i < scanResults.size(); i++)
-	        	System.out.println(Integer.valueOf(i + 1).toString() + ":" + (scanResults.get(i)).toString()); 	        
+				System.out.println(Integer.valueOf(i + 1).toString() + ":"
+						+ (scanResults.get(i)).toString());
 		}
-		           
-		return scanResults;  		
+
+		return scanResults;
 	}
-	
+
 	public ScanResult scanAndFindSSID(String ssid) {
 		List<ScanResult> scanResults = getScanResults(false);
-		
-        for (int i = 0; i < scanResults.size(); i++) {          	
-        	if (scanResults.get(i).SSID.equals(ssid))
-        		return scanResults.get(i);
-        }  
-        
-        return null;
+
+		for (int i = 0; i < scanResults.size(); i++) {
+			if (scanResults.get(i).SSID.equals(ssid))
+				return scanResults.get(i);
+		}
+
+		return null;
 	}
-	
-	private List<WifiConfiguration> getWifiConfigurations(boolean print) {	
-		
-		final WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
+
+	private List<WifiConfiguration> getWifiConfigurations(boolean print) {
+
+		final WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
 		final List<WifiConfiguration> wConfigurations;
-		
+
 		wifiManager.startScan(); /* CHANGE_WIFI_STATE */
-				
+
 		wConfigurations = wifiManager.getConfiguredNetworks();
 
 		if (print) {
-	        for (int i = 0; i < wConfigurations.size(); i++) {  
-	        	WifiConfiguration wifiConfiguration = wConfigurations.get(i);
-	        	System.out.println(Integer.valueOf(i + 1).toString() + ":" + wifiConfiguration.toString()); 		
-	        }				
+			for (int i = 0; i < wConfigurations.size(); i++) {
+				WifiConfiguration wifiConfiguration = wConfigurations.get(i);
+				System.out.println(Integer.valueOf(i + 1).toString() + ":"
+						+ wifiConfiguration.toString());
+			}
 		}
 
 		return wConfigurations;
 	}
-	
+
 	public boolean disconnectFromAP() {
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
-		
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
+
 		if (!isConnected())
 			System.out.println("[WifiAdmin] not connected yet");
-		
+
 		return wifiManager.disconnect();
-	}	
-			
+	}
+
 	public boolean connectToApWithoutKey(String ssid) {
-		
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);		
+
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
 		WifiConfiguration wConfiguration = new WifiConfiguration();
 		int netId;
-		
+
 		ScanResult scanResult = scanAndFindSSID(ssid);
 		if (scanResult == null) {
-			System.out.printf("[WifiAdmin] ssid <%s> does not exist", ssid);			
+			System.out.printf("[WifiAdmin] ssid <%s> does not exist\n", ssid);
 			return false;
 		}
-		
+
 		/*
-		wConfiguration.allowedAuthAlgorithms.clear();
-		wConfiguration.allowedGroupCiphers.clear();
-		wConfiguration.allowedKeyManagement.clear();
-		wConfiguration.allowedPairwiseCiphers.clear();
-		wConfiguration.allowedProtocols.clear();
-		*/
-		wConfiguration.SSID = "\"" + ssid + "\"" ;		
+		 * wConfiguration.allowedAuthAlgorithms.clear();
+		 * wConfiguration.allowedGroupCiphers.clear();
+		 * wConfiguration.allowedKeyManagement.clear();
+		 * wConfiguration.allowedPairwiseCiphers.clear();
+		 * wConfiguration.allowedProtocols.clear();
+		 */
+		wConfiguration.SSID = "\"" + ssid + "\"";
 		wConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-		
-		netId = wifiManager.addNetwork(wConfiguration);  
+
+		netId = wifiManager.addNetwork(wConfiguration);
 		if (netId < 0) {
 			System.out.println("[WifiAdmin] fail to addNetwork " + ssid);
-			return false;			
+			return false;
 		}
-		
+
 		if (!wifiManager.enableNetwork(netId, true)) {
 			System.out.println("[WifiAdmin] fail to enableNetwork");
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	public boolean connectToAp(String ssid) {
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);		
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
 		List<WifiConfiguration> wConfigurations;
-		
+
 		ssid = "\"" + ssid + "\"";
-		
+
 		wifiManager.startScan(); /* CHANGE_WIFI_STATE */
+
 		wConfigurations = wifiManager.getConfiguredNetworks();
 		for (int i = 0; i < wConfigurations.size(); i++) {
 			if (wConfigurations.get(i).SSID.equals(ssid)) {
-				wifiManager.enableNetwork(wConfigurations.get(i).networkId, true);
+				wifiManager.enableNetwork(wConfigurations.get(i).networkId,
+						true);
 				return true;
 			}
 		}
-		
+
 		return false;
-	}		
-	
+	}
+
+	public boolean deleteApConfiguration(String ssid) {
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
+		List<WifiConfiguration> wConfigurations;
+
+		ssid = "\"" + ssid + "\"";
+
+		wConfigurations = wifiManager.getConfiguredNetworks();
+		for (int i = 0; i < wConfigurations.size(); i++) {
+			if (wConfigurations.get(i).SSID.equals(ssid)) {
+				wifiManager.disableNetwork(wConfigurations.get(i).networkId);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public String getIp() {
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
 		int ip = wifiManager.getDhcpInfo().ipAddress;
-		
-		return (String.format("%d.%d.%d.%d", (ip & 0xff),(ip >> 8 & 0xff),(ip >> 16 & 0xff),	(ip >> 24 & 0xff))).toString();		
+
+		return (String.format("%d.%d.%d.%d", (ip & 0xff), (ip >> 8 & 0xff),
+				(ip >> 16 & 0xff), (ip >> 24 & 0xff))).toString();
 	}
-	
+
 	public String getGateWayIp() {
-		WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
+		WifiManager wifiManager = (WifiManager) mContext
+				.getSystemService(Context.WIFI_SERVICE);
 		int ip = wifiManager.getDhcpInfo().gateway;
-		
-		return (String.format("%d.%d.%d.%d", (ip & 0xff),(ip >> 8 & 0xff),(ip >> 16 & 0xff),	(ip >> 24 & 0xff))).toString();		
+
+		return (String.format("%d.%d.%d.%d", (ip & 0xff), (ip >> 8 & 0xff),
+				(ip >> 16 & 0xff), (ip >> 24 & 0xff))).toString();
 	}
-	
+
 }

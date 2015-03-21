@@ -18,7 +18,10 @@ package com.zgzhsh.smartcontroller;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import android.R.integer;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
@@ -26,6 +29,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,142 +41,159 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class ScNetConfig extends Activity {
+
+	static final int MSG_START_NET_CONFIG = 1;
+	static final int MSG_STOP_NET_CONFIG = 2;
+	static final int MSG_TOAST_WIFI_NOT_CONNECTED = 3;
+	static final int MSG_TOAST_WIFI_NEED_CONNECT_TO_HOMEAP = 4;
+	static final int MSG_TOAST_WIFI_CONNECT_TO_BOARD_TIMEOUT = 5;
+	static final int MSG_TOAST_WIFI_BOARD_AP_NOT_EXISTED = 6;
+	static final int MSG_TOAST_SUCCEED_TO_CONFIG_NET = 7;
+
 	/**
 	 * WIFI controller
 	 */
-	private ScWifiAdmin wifiAdmin = null;
-	
+	private ScWifiAdmin mWifiAdmin = null;
+
 	/**
-	 * Home AP SSID input text 
+	 * Home AP SSID input text
 	 */
-	private EditText mSsidEditText = null;
+	private EditText mHomeSsidText = null;
 	/**
-	 * Home AP password input text  
+	 * Home AP password input text
 	 */
-	private EditText mPasswdEditText = null;
+	private EditText mHomePasswdText = null;
 	/**
 	 * Home AP name
 	 */
-	private EditText mDevNameEditText = null;
-	
-	/**
-	 * Start Net Config:<p>
-	 *   1) Disconnect from Home AP<p>
-	 *   2) Connect to Board soft AP<p>
-	 *   3) Send UDP packet encapsulated with SSID/PASSWD to board<p>
-	 *   4) Disconnect from Board soft AP<p>
-	 *   5) Connect to Home AP<p>
-	 *   6) Send UDP broadcast packet in Home AP local LAN<p>
-	 *   7) Get IP of Board(as station)<p>
-	 */
-	private Button mStartButton = null;
+	private EditText mDevNameText = null;
+
+	private String mHomeSsid;
+	private String mHomePasswd;
+
+	private Button mStartNetConfigBtn = null;
+
 	/**
 	 * Progress bar when configuration
 	 */
 	private ProgressBar mProgressBar = null;
-	
+
 	/**
 	 * Flag to avoid duplicated pressing "start" button
 	 */
-	private boolean mIsConfiguring = false;
-	private boolean mUpdateUI  = false;
-	
+	private volatile boolean mInProcess = false;
+	private volatile boolean mStopNetConfig = false;
+
+	private Lock mLock = new ReentrantLock();
+
 	private Timer timer = new Timer();
-	
-	/**
-	 * Check whether the WIFI is connected
-	 * @return
-	 */
-	private boolean checkWifiLink(boolean showToast) {
-		if (wifiAdmin.isConnected())
-			return true;
-				
-		if (showToast) {
-			Toast t = Toast.makeText(getApplicationContext(), 
-					"手机未连接WIFI", Toast.LENGTH_LONG);
-			t.setGravity(Gravity.CENTER, 0, 0);
-			t.show();	
+
+	final Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			Toast t;
+
+			switch (msg.what) {
+			case MSG_START_NET_CONFIG:
+
+				mInProcess = true;
+				System.out
+						.println("[NetConfig][MSG] Start net config: Update UI");
+				mStartNetConfigBtn
+						.setBackgroundResource(R.drawable.nc_btn_pressed);
+				mProgressBar.setVisibility(ProgressBar.VISIBLE);
+				mStartNetConfigBtn.setText(getResources().getString(
+						R.string.nc_stop_text));
+
+				break;
+
+			case MSG_STOP_NET_CONFIG:
+				mInProcess = false;
+				System.out
+						.println("[NetConfig][MSG] Stop net config: Update UI");
+				mStartNetConfigBtn.setBackgroundResource(R.drawable.nc_btn);
+				mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+				mStartNetConfigBtn.setText(getResources().getString(
+						R.string.nc_start_text));
+
+				break;
+
+			case MSG_TOAST_WIFI_NOT_CONNECTED:
+				if (!mHandler.hasMessages(MSG_TOAST_WIFI_NOT_CONNECTED)) {
+					t = Toast.makeText(getApplicationContext(), "手机未连接WIFI",
+							Toast.LENGTH_SHORT);
+					t.setGravity(Gravity.CENTER, 0, 0);
+					t.show();
+				}
+				break;
+
+			case MSG_TOAST_WIFI_NEED_CONNECT_TO_HOMEAP:
+				t = Toast.makeText(getApplicationContext(), "请连接家中无线路由器",
+						Toast.LENGTH_SHORT);
+				t.setGravity(Gravity.CENTER, 0, 0);
+				t.show();
+
+				break;
+
+			case MSG_TOAST_WIFI_CONNECT_TO_BOARD_TIMEOUT:
+				t = Toast.makeText(getApplicationContext(), "配置超时",
+						Toast.LENGTH_SHORT);
+				t.setGravity(Gravity.CENTER, 0, 0);
+				t.show();
+
+				break;
+
+			case MSG_TOAST_WIFI_BOARD_AP_NOT_EXISTED:
+				t = Toast.makeText(getApplicationContext(), "请确认智能遥控器已经打开",
+						Toast.LENGTH_SHORT);
+				t.setGravity(Gravity.CENTER, 0, 0);
+				t.show();
+
+				break;
+
+			case MSG_TOAST_SUCCEED_TO_CONFIG_NET:
+				t = Toast.makeText(getApplicationContext(), "成功配置智能遥控器",
+						Toast.LENGTH_SHORT);
+				t.setGravity(Gravity.CENTER, 0, 0);
+				t.show();
+
+				break;
+
+			default:
+				break;
+			}
+
+			super.handleMessage(msg);
 		}
-										
-		return false;
-	}
-	
-	/**
-	 * Check the length of password user typed
-	 * @return
-	 */
-	private boolean checkPasswd(boolean showToast) {
-		String passwd = mPasswdEditText.getText().toString().trim();
-		if (passwd.length() > 0)
-			return true;
+	};
 
-		//System.out.println("[NetConfig] mPasswdEditText is empty");
-		
-		if (showToast) {
-			Toast t = Toast.makeText(getApplicationContext(), 
-					"请输入密码", Toast.LENGTH_LONG);
-			t.setGravity(Gravity.CENTER, 0, 0);
-			t.show();	
-		}						
-
-		return false;
-	}
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
-		super.onCreate(savedInstanceState);		
-		setContentView(R.layout.sc_net_conf);		
-		
-		wifiAdmin = new ScWifiAdmin(this);
-		
+
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.sc_net_conf);
+
+		mWifiAdmin = new ScWifiAdmin(this);
+
 		initUI();
-							
+
 		timerUpdateUI();
-		
+
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
 		intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
 		intentFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-		registerReceiver(broadcastReceiver, intentFilter);				
+		registerReceiver(broadcastReceiver, intentFilter);
 	}
 
 	@Override
 	protected void onDestroy() {
 		unregisterReceiver(broadcastReceiver);
-		
+
 		super.onDestroy();
 	}
-	
-	private boolean updateUI(boolean inConfiguring) {
-		if (inConfiguring) {
-			System.out.println("[NetConfig] Enable process bar");
-			mStartButton.setBackgroundResource(R.drawable.nc_btn_pressed);
-			mProgressBar.setVisibility(ProgressBar.VISIBLE);						
-			mStartButton.setText(getResources().getString(R.string.nc_stop_text));
-		} else {
-			System.out.println("[NetConfig] Disable process bar");
-			mStartButton.setBackgroundResource(R.drawable.nc_btn);
-			mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-			mStartButton.setText(getResources().getString(R.string.nc_start_text));	
-		}
-	
-		return true;
-	}
-	
-	private boolean setUiUpdateFlag(boolean inConfiguring) {
-		if (inConfiguring) 
-			mIsConfiguring = true;			
-		else 
-			mIsConfiguring = false;
-		
-		mUpdateUI = true;
-		
-		return true;
-	}
-	
-	
+
 	/**
 	 * Initialize UI
 	 */
@@ -179,54 +201,46 @@ public class ScNetConfig extends Activity {
 		/**
 		 * Get views
 		 */
-		mSsidEditText = (EditText)findViewById(R.id.nc_ssid_input);
-		mPasswdEditText = (EditText)findViewById(R.id.nc_passwd_input);
-		mDevNameEditText = (EditText)findViewById(R.id.nc_dev_name_input);
-		mStartButton = (Button)findViewById(R.id.nc_start);
-		
-		mProgressBar = (ProgressBar)findViewById(R.id.nc_progress);		
+		mHomeSsidText = (EditText) findViewById(R.id.nc_ssid_input);
+		mHomePasswdText = (EditText) findViewById(R.id.nc_passwd_input);
+		mDevNameText = (EditText) findViewById(R.id.nc_dev_name_input);
+		mStartNetConfigBtn = (Button) findViewById(R.id.nc_start);
+
+		mProgressBar = (ProgressBar) findViewById(R.id.nc_progress);
 		mProgressBar.bringToFront();
-		
+
 		/**
 		 * Initialize views
 		 */
-		mDevNameEditText.setEnabled(false);
-		
-		mSsidEditText.setText(wifiAdmin.getSSID());		
-		mSsidEditText.setEnabled(false);
-		mSsidEditText.setFocusable(false);	
-		
+		mDevNameText.setEnabled(false);
+
+		mHomeSsidText.setText(mWifiAdmin.getSSID());
+		mHomeSsidText.setEnabled(false);
+		mHomeSsidText.setFocusable(false);
+
 		/**
-		 * Bind listener with button  
+		 * Bind listener with button
 		 */
 		setViewClickListeners();
-		
+
 	}
 
 	private void setViewClickListeners() {
-		mStartButton.setOnClickListener(new View.OnClickListener() {
-			
+		mStartNetConfigBtn.setOnClickListener(new View.OnClickListener() {
+
 			@Override
 			public void onClick(View v) {
 
 				switch (v.getId()) {
-				case R.id.nc_start:					
-					System.out.println("[NetConfig] Start button clicked");
-					
-					if (!mIsConfiguring) {																
-						if (!checkWifiLink(true))
-							break;
-									
-						setUiUpdateFlag(true);
-						
-						if (!checkPasswd(false))
-							System.out.println("[NetConfig] home AP passwd is null");
-												
-						sendSSIDtoBoard();
+				case R.id.nc_start:
 
+					if (!mInProcess) {
+						System.out.println("[NetConfig] User Start net config");
+						startNetConfig();
 					} else {
-												
-						stopSendSSIDtoBoard();						
+						System.out
+								.println("[NetConfig] User wants to stop net config");
+						mStopNetConfig = true;
 					}
 
 					break;
@@ -234,186 +248,240 @@ public class ScNetConfig extends Activity {
 				default:
 					break;
 				}
-				
+
 			}
-		});			
+		});
 	}
-	
-	
 
 	void timerUpdateUI() {
-			
+
 		int periodicDelay = 1000; // 1 sec.
-		int timeInterval = 1000; // 1 sec.
+		int timeInterval = 500; // 1 sec.
 
 		timer.scheduleAtFixedRate(new TimerTask() {
 			public void run() {
 				runOnUiThread(new Runnable() {
-					public void run() {	
-						if (mUpdateUI) {
-							mUpdateUI = false;
-							updateUI(mIsConfiguring);							
-						}
-							
+					public void run() {
+
 					}
 				});
 			}
 		}, periodicDelay, timeInterval);
-		
-	}	
-	
-	private boolean sendSSIDtoBoard() {
-		Thread thread = new Thread(new Runnable() {					
+
+	}
+
+	/**
+	 * Start Net Config:
+	 * <p>
+	 * 1) Disconnect from Home AP
+	 * <p>
+	 * 2) Connect to Board soft AP
+	 * <p>
+	 * 3) Send UDP packet encapsulated with SSID/PASSWD to board
+	 * <p>
+	 * 4) Disconnect from Board soft AP
+	 * <p>
+	 * 5) Connect to Home AP
+	 * <p>
+	 * 6) Send UDP broadcast packet in Home AP local LAN
+	 * <p>
+	 * 7) Get IP of Board(as station)
+	 * <p>
+	 */
+	private boolean startNetConfig() {
+
+		new Thread(new Runnable() {
+
 			@Override
-			public void run() {					
-					                                              
-				wifiAdmin.disconnectFromAP();		
+			public void run() {
+				mHandler.sendEmptyMessage(MSG_START_NET_CONFIG);
+
 				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				if (wifiAdmin.isConnected())
-					System.out.println("[NetConfig] sendSSIDtoBoard(): still connected?");
-				
-				/**
-				 * Try to connect to Board(as soft AP)
-				 */
-				if (!wifiAdmin.connectToApWithoutKey(ScConstants.BOARD_AP_SSID)) {
-					System.out.println("[NetConfig] connectToApWithoutKey() failed");
-					setUiUpdateFlag(false);
-					return;
-				}
-				
-				int cnt = 0;
-				while (!wifiAdmin.isConnected()) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					System.out.println("[NetConfig] Check wifi link...");
+					if (!mWifiAdmin.isConnected()) {
+						mHandler.sendEmptyMessage(MSG_TOAST_WIFI_NOT_CONNECTED);
+						return;
 					}
-					if (cnt++ > 10)
-						break;
-				}
-				if (!wifiAdmin.isConnected()) {
-					System.out.printf("[NetConfig] fail to connect to %s\n", ScConstants.BOARD_AP_SSID);
-					setUiUpdateFlag(false);
-					return;
-				}
-				System.out.println("[NetConfig] connect to " + ScConstants.BOARD_AP_SSID);
-										
-				String ssid = mSsidEditText.getText().toString().trim();
-				String passwd = mPasswdEditText.getText().toString().trim();				
-				String msg = String.format("###%s:%s$", ssid, passwd);
-				
-				try {
+
 					/**
-					 * Send ssid:passwd of home AP to Board(as soft AP)
+					 * Get Home AP SSID:PASSWD
 					 */
-					UdpClient udpClient;
-					udpClient = new UdpClient(wifiAdmin.getGateway(), ScConstants.BOARD_AP_UDP_SERVER_PORT);
-										
-					udpClient.sendData(msg.getBytes());			
-					udpClient.recvData(false);
-														
+					String ssid = mWifiAdmin.getSSID().trim();
+					if (ssid.equals(ScConstants.BOARD_AP_SSID)) {
+						mHandler.sendEmptyMessage(MSG_TOAST_WIFI_NEED_CONNECT_TO_HOMEAP);
+						return;
+					}
+					mHomeSsid = ssid;
+
+					mHomePasswd = mHomePasswdText.getText().toString().trim();
+					System.out.printf(
+							"[NetConfig] Home AP：[%s], password [%s]\n",
+							mHomeSsid, mHomePasswd);
+
+					/**
+					 * 1. Disconnect from Home AP
+					 */
+					System.out.println("[NetConfig] Disconnect from Home AP ["
+							+ mHomeSsid + "]");
+					mWifiAdmin.disconnectFromAP();
+
+					Thread.sleep(200);
+
+					if (mWifiAdmin.isConnected())
+						System.out
+								.println("[NetConfig] Fail to disconnect from Home AP ["
+										+ mHomeSsid + "] ??");
+
+					if (mStopNetConfig)
+						return;
+
+					/**
+					 * 2. Connect to Board
+					 */
+					System.out.println("[NetConfig] Try to connect to Board ["
+							+ ScConstants.BOARD_AP_SSID + "]");
+					if (!mWifiAdmin
+							.connectToApWithoutKey(ScConstants.BOARD_AP_SSID)) {
+						System.out
+								.println("[NetConfig] Fail to connect to Board ["
+										+ ScConstants.BOARD_AP_SSID + "]");
+						mHandler.sendEmptyMessage(MSG_TOAST_WIFI_BOARD_AP_NOT_EXISTED);
+						return;
+					}
+
+					Thread.sleep(100);
+					for (int i = 0; i < 100; i++) {
+						if (mStopNetConfig)
+							return;
+
+						if (mWifiAdmin.isConnected())
+							break;
+
+						Thread.sleep(100);
+					}
+
+					if (!mWifiAdmin.isConnected()) {
+						System.out
+								.println("[NetConfig] Timeout: fail to connect to Board ["
+										+ ScConstants.BOARD_AP_SSID + "]");
+						mHandler.sendEmptyMessage(MSG_TOAST_WIFI_CONNECT_TO_BOARD_TIMEOUT);
+						return;
+					}
+
+					if (!mWifiAdmin.getSSID().equals(ScConstants.BOARD_AP_SSID)) {
+						System.out.println("[NetConfig] Connected to "
+								+ mWifiAdmin.getSSID() + "??, exit");
+						return;
+					}
+
+					System.out.println("[NetConfig] Connected to Board ["
+							+ ScConstants.BOARD_AP_SSID + "]");
+
+					/**
+					 * 3. Send UDP packet(ssid:passwd) to Board
+					 */
+					String msg = String.format("###%s:%s$", mHomeSsid,
+							mHomePasswd);
+					System.out.printf("[NetConfig] Send ###%s:%s$ to Board\n",
+							mHomeSsid, mHomePasswd);
+
+					UdpClient udpClient = new UdpClient(
+							mWifiAdmin.getGateway(),
+							ScConstants.BOARD_AP_UDP_SERVER_PORT);
+
+					udpClient.sendData(msg.getBytes());
+					byte[] data = udpClient.recvData(false);
+					udpClient.close();
+
+					mHandler.sendEmptyMessage(MSG_TOAST_SUCCEED_TO_CONFIG_NET);
+
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					// TODO: handle exception
+				} finally {
+					mStopNetConfig = false;
+
+					mWifiAdmin.disconnectFromAP();
+					System.out.println("[NetConfig] Reconnect to Home AP ["
+							+ mHomeSsid + "]");
+					mWifiAdmin.connectToAp(mHomeSsid);
+
+					/*
+					 * System.out.println("[NetConfig] Delete WIFI AP" +
+					 * ScConstants.BOARD_AP_SSID + "configuration"); if
+					 * (!mWifiAdmin
+					 * .deleteApConfiguration(ScConstants.BOARD_AP_SSID))
+					 * System.
+					 * out.printf("[NetConfig] WIFI AP [%s] does not exist\n",
+					 * ScConstants.BOARD_AP_SSID);
+					 */
+
+					mHandler.sendEmptyMessageAtTime(MSG_STOP_NET_CONFIG, 1000);
 				}
-				
-				/**
-				 * Reconnect to home AP
-				 */
-				wifiAdmin.connectToAp(ssid);
-				
-				setUiUpdateFlag(false);
+
 			}
-		});
-		
-		thread.start();
-		         		
+		}).start();
+
 		return true;
 	}
-	
-	private boolean stopSendSSIDtoBoard() {
-		Thread thread = new Thread(new Runnable() {					
-			@Override
-			public void run() {					
-					                                              
-				wifiAdmin.disconnectFromAP();		
-															
-				String ssid = mSsidEditText.getText().toString().trim();
-				System.out.println("[NetConfig] stopSendSSIDtoBoard(): connect to " + ssid);
-				
-				/**
-				 * Reconnect to home AP
-				 */
-				wifiAdmin.connectToAp(ssid);
-				
-				setUiUpdateFlag(false);
-			}
-		});
-		
-		thread.start();
-		         		
-		return true;
-	}
-	
+
 	BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-		public void onReceive(android.content.Context context, android.content.Intent intent) {
+		public void onReceive(android.content.Context context,
+				android.content.Intent intent) {
 			final String action = intent.getAction();
-			
+
 			if (action.equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
-				System.out.println("[NetConfig] SUPPLICANT_CONNECTION_CHANGE_ACTION");
+				System.out
+						.println("[NetConfig] SUPPLICANT_CONNECTION_CHANGE_ACTION");
 			}
-			
-			if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {															
-				NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-				
-				if (info.getType() == ConnectivityManager.TYPE_WIFI) {	
+
+			if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+				NetworkInfo info = intent
+						.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+
+				if (info.getType() == ConnectivityManager.TYPE_WIFI) {
 
 					if (info.isConnected()) {
-						//System.out.printf("[NetConfig] broadcast: connected to %s\n" + wifiAdmin.getSSID());
-						System.out.println("[NetConfig] broadcast: connected to " + wifiAdmin.getSSID());						
+						// System.out.printf("[NetConfig] broadcast: connected to %s\n"
+						// + wifiAdmin.getSSID());
+						System.out
+								.println("[NetConfig] broadcast: connected to "
+										+ mWifiAdmin.getSSID());
 					} else {
-						System.out.printf("[NetConfig] broadcast: disconnected\n");						
+						// System.out.printf("[NetConfig] broadcast: disconnected\n");
 					}
-					
-					if (!mIsConfiguring)
-						mSsidEditText.setText(wifiAdmin.getSSID());
+
+					if (!mInProcess)
+						mHomeSsidText.setText(mWifiAdmin.getSSID());
 					/*
-					if (info.getDetailedState() == DetailedState.CONNECTED) {
-						WifiManager wManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-						WifiInfo wInfo = wManager.getConnectionInfo();
-												
-						mSsidEditText.setText(wInfo.getSSID());
-					} else {						
-						mSsidEditText.setText("");	
-					}
-					*/					
-				}			
+					 * if (info.getDetailedState() == DetailedState.CONNECTED) {
+					 * WifiManager wManager = (WifiManager)
+					 * context.getSystemService(Context.WIFI_SERVICE); WifiInfo
+					 * wInfo = wManager.getConnectionInfo();
+					 * 
+					 * mSsidEditText.setText(wInfo.getSSID()); } else {
+					 * mSsidEditText.setText(""); }
+					 */
+				}
 			}
 		};
 	};
-	
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.sc_start, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.sc_start, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 }
