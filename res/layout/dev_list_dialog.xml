@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical|center_horizontal">
+    <RelativeLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="20dip"
+        android:paddingTop="20dip">
+
+        <TextView 
+            android:id="@+id/dl_dialog_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="@dimen/dl_dialog_margin"
+            android:layout_marginRight="@dimen/dl_dialog_margin"
+            android:paddingLeft="@dimen/dl_dialog_txt_margin"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dl_dialog_title_size"/>
+        
+    </RelativeLayout>
+    
+    <!-- line -->
+    <TextView 
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginLeft="@dimen/dl_dialog_margin"
+            android:layout_marginRight="@dimen/dl_dialog_margin"
+            android:background="@color/grey_background"
+            />
+
+    <!-- delete -->
+    <RelativeLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dl_dialog_margin"
+        android:layout_marginRight="@dimen/dl_dialog_margin">
+        <Button 
+            android:id="@+id/dl_dialog_del_dev_btn"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/dl_dialog_btn_h"
+            android:gravity="left|center_vertical"
+            android:paddingLeft="@dimen/dl_dialog_txt_margin"
+            android:background="@drawable/dl_dialog_btn_sel"
+            android:text="@string/dl_dialog_del_dev"
+            android:textSize="@dimen/dl_dialog_btn_size"
+            />
+    </RelativeLayout>
+</LinearLayout>

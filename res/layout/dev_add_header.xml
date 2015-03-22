@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+    android:id="@+id/list_header_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/nc_header_bg"
+    android:minHeight="@dimen/nc_header_height">
+
+    <TextView
+        android:id="@+id/device_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/da_header_text"
+        android:textColor="@color/white"
+        android:textSize="@dimen/nc_header_text_size"
+        />
+    
+      <Button
+        android:id="@+id/da_save_btn"
+        android:layout_width="@dimen/nc_header_height"
+        android:layout_height="@dimen/nc_header_height"
+        android:minHeight="@dimen/nc_header_height"
+        android:layout_alignParentRight="true"
+        android:background="@android:color/transparent"
+        android:gravity="center_vertical"
+        android:text="@string/da_save_btn_text"
+        android:textColor="@drawable/da_save_btn_sel"
+        android:textSize="@dimen/da_save_btn_txt_size"
+        />
+
+       <ImageButton
+        android:id="@+id/da_back_btn"
+        android:layout_width="@dimen/nc_header_height"
+        android:layout_height="@dimen/nc_header_height"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:background="@android:color/transparent"
+        android:scaleType="centerInside"
+        android:src="@drawable/da_back_btn_sel"
+        android:contentDescription="@string/da_back_btn_desc"
+        />
+  
+</RelativeLayout>
