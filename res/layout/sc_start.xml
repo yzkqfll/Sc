@@ -3,6 +3,6 @@
     style="@android:style/Theme.Black.NoTitleBar.Fullscreen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"    
-    android:background="@drawable/wait4" >
+    android:background="@drawable/wait2" >
 
 </RelativeLayout>
