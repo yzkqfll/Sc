@@ -23,57 +23,58 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 
-
 public class ScStart extends Activity {
 	private static final int WAIT_MS = 1500;
-	
+
 	private void lauchNetConfig() {
 		Handler handler = new Handler();
-				
+
 		handler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-		        Intent configIntent = new Intent(ScStart.this, ScNetConfig.class);
-		        startActivity(configIntent);		        
+
+				Intent configIntent = new Intent(ScStart.this,
+						ScDeviceList.class);
+
+				startActivity(configIntent);
 			}
 		}, WAIT_MS);
-		
-		/* 
-		 * finish the StartActivity 
-		 * */
-		handler.postDelayed(new Runnable() {			
+
+		/*
+		 * finish the StartActivity
+		 */
+		handler.postDelayed(new Runnable() {
 			@Override
-			public void run() {			
-		        finish();	        
+			public void run() {
+				finish();
 			}
-		}, WAIT_MS);		
+		}, WAIT_MS);
 	}
-	
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.sc_start);
-                
-        lauchNetConfig();          	       
-    }
 
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.sc_start);
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.sc_start, menu);
-        return true;
-    }
+		lauchNetConfig();
+	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.sc_start, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 }
