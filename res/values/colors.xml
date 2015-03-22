@@ -14,5 +14,7 @@
  	<color name="blue_text_color">#0000ED</color>
  	<color name="disabled_text_color">#9A9A9A</color>
  	<color  name="text_color_grey">#575757</color>
+ 	<color name="header_color">#333333</color>
+ 	<color name="list_item_pressed_color">#cccccc</color>
  	
 </resources>

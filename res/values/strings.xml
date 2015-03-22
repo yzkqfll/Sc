@@ -11,5 +11,20 @@
     <string name="nc_start_text">开始配置</string>
     <string name="website">www.163.com</string>
     <string name="nc_stop_text">停止配置</string>
+    <string name="dl_header_text">设备列表</string>
+    <string name="da_header_text">创建新设备</string>
+    <string name="dl_add_btn_desc">添加新设备用</string>
+    <string name="da_back_btn_desc">返回</string>
+    <string name="da_save_btn_text">保存</string>
+    <string name="da_new_dev_name">新设备名称</string>
+    <string name="dl_list_item_img_desc">设备类别图片</string>
+    <string name="da_list_item_img_desc">用来表示设备种类选择</string>
+    <string name="tv_str">电视</string>
+    <string name="ac_str">空调</string>
+    <string name="tvb_str">机顶盒</string>
+    <string name="da_plz_input_name">请输入设备名称</string>
+    <string name="da_plz_input_type">请输入设备种类</string>
+    <string name="dl_dialog_del_dev">删除该设备</string>
+    <string name="toast_wifi_not_connected_str">手机未连接WIFI</string>
 
 </resources>

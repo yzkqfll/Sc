@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>  
+<RelativeLayout   
+        android:id="@+id/RelativeLayout01"   
+        android:layout_width="fill_parent"   
+        xmlns:android="http://schemas.android.com/apk/res/android"   
+        android:layout_height="wrap_content" 
+        android:background="@drawable/dl_item_bg_sel"
+        android:paddingRight="12dip">  
+        
+    <ImageView
+    android:id="@+id/dl_item_image" 
+	android:layout_alignParentLeft="true"
+	android:layout_width="@dimen/dl_list_item_image_size" 
+	android:layout_height="@dimen/dl_list_item_image_size"
+	android:background="@color/grey_text_color"
+	android:layout_centerVertical="true"
+	android:scaleType="centerInside"
+	android:layout_marginLeft="10dp"
+	android:layout_marginRight="10dp"
+	android:contentDescription="@string/dl_list_item_img_desc"
+	/>       
+
+ 
+    <TextView   
+        android:id="@+id/dl_item_type"  
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"   
+        android:textColor="@color/grey_text_color"
+        android:visibility="gone"
+        />
+    
+    <TextView   
+        android:id="@+id/dl_item_name"
+        android:layout_height="@dimen/dl_list_item_height"
+        android:layout_width="wrap_content"
+        android:layout_toRightOf="@+id/dl_item_image"
+        android:minHeight="@dimen/dl_list_item_height"
+        android:gravity="center_vertical"
+        android:textSize="@dimen/dl_list_item_txt_size"   
+        android:textColor="@color/grey_text_color"
+        />
+
+    </RelativeLayout>

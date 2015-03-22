@@ -10,6 +10,17 @@
     <dimen name="nc_min_divider_height">1dip</dimen>
     <dimen name="nc_max_margin_size">15dip</dimen>
     <dimen name="nc_min_margin_cutoff">10dip</dimen>
+    <dimen name="divider_height">1dip</dimen>
+    <dimen name="da_save_btn_txt_size">18dip</dimen>
+    <dimen name="dl_list_item_height">50dip</dimen>
+    <dimen name="dl_list_item_txt_size">18dip</dimen>
+    <dimen name="dl_list_item_image_size">35dip</dimen>
+    <dimen name="dl_dialog_margin">10dip</dimen>
+    <dimen name="dl_dialog_txt_margin">10dip</dimen>
+    <dimen name="dl_dialog_btn_h">50dip</dimen>
+    <dimen name="dl_dialog_title_size">20dip</dimen>
+    <dimen name="dl_dialog_btn_size">18dip</dimen>
+    
     
 
 </resources>
