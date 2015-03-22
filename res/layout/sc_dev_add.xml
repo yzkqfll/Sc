@@ -7,37 +7,37 @@
     android:background="@color/grey_background" >
 
     <!-- header view -->
+
     <include
         android:id="@+id/dev_add_header"
         layout="@layout/dev_add_header" />
 
     <!-- edit -->
+
     <EditText
-         android:id="@+id/da_dev_name_input"
-         android:layout_marginTop="@dimen/min_margin_cutoff"
-         android:layout_marginBottom="@dimen/min_margin_cutoff"
-         android:layout_below="@+id/dev_add_header"
-         android:paddingTop="10dp"
-         android:paddingBottom="10dp"
-         android:paddingLeft="10dp"
-         style="?android:attr/textViewStyle"
-         android:background="@color/white"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content"
-         android:hint="@string/da_new_dev_name"
-         android:singleLine="true"
-         android:textColor="@color/black"
-         android:textSize="@dimen/dl_list_item_txt_size" 
-          />
-      
-     <ListView
-        android:id="@+id/da_type_list"  
-        android:layout_below="@+id/da_dev_name_input"
-        android:layout_width="wrap_content"   
+        android:id="@+id/da_dev_name_input"
+        style="?android:attr/textViewStyle"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:divider="@color/grey_background"
-        android:dividerHeight="@dimen/divider_height"
+        android:layout_below="@+id/dev_add_header"
+        android:layout_marginBottom="@dimen/min_margin_cutoff"
+        android:layout_marginTop="@dimen/min_margin_cutoff"
         android:background="@color/white"
-        />
+        android:hint="@string/da_new_dev_name"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:textSize="@dimen/dl_list_item_txt_size" />
+
+    <ListView
+        android:id="@+id/da_type_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/da_dev_name_input"
+        android:background="@color/white"
+        android:divider="@color/grey_background"
+        android:dividerHeight="@dimen/divider_height" />
 
 </RelativeLayout>
