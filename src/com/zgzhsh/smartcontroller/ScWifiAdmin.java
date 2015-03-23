@@ -16,10 +16,8 @@
 
 package com.zgzhsh.smartcontroller;
 
-import java.net.InetAddress;
 import java.util.List;
 
-import android.R.integer;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;

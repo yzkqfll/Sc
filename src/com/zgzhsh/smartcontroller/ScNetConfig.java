@@ -21,7 +21,6 @@ import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import android.R.integer;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
@@ -49,6 +48,7 @@ public class ScNetConfig extends Activity {
 	static final int MSG_TOAST_WIFI_CONNECT_TO_BOARD_TIMEOUT = 5;
 	static final int MSG_TOAST_WIFI_BOARD_AP_NOT_EXISTED = 6;
 	static final int MSG_TOAST_SUCCEED_TO_CONFIG_NET = 7;
+	static final int MSG_TOAST_FAIL_TO_CONFIG_NET = 8;
 
 	/**
 	 * WIFI controller
@@ -87,6 +87,8 @@ public class ScNetConfig extends Activity {
 	private Lock mLock = new ReentrantLock();
 
 	private Timer timer = new Timer();
+
+	private ScDataStorage mDataStorage;
 
 	final Handler mHandler = new Handler() {
 		@Override
@@ -159,6 +161,14 @@ public class ScNetConfig extends Activity {
 
 				break;
 
+			case MSG_TOAST_FAIL_TO_CONFIG_NET:
+				t = Toast.makeText(getApplicationContext(), "配置智能遥控器失败",
+						Toast.LENGTH_SHORT);
+				t.setGravity(Gravity.CENTER, 0, 0);
+				t.show();
+
+				break;
+
 			default:
 				break;
 			}
@@ -174,6 +184,8 @@ public class ScNetConfig extends Activity {
 		setContentView(R.layout.sc_net_conf);
 
 		mWifiAdmin = new ScWifiAdmin(this);
+
+		mDataStorage = new ScDataStorage(this, ScConstants.NET_CONFIG_FILE);
 
 		initUI();
 
@@ -385,15 +397,22 @@ public class ScNetConfig extends Activity {
 					System.out.printf("[NetConfig] Send ###%s:%s$ to Board\n",
 							mHomeSsid, mHomePasswd);
 
-					UdpClient udpClient = new UdpClient(
-							mWifiAdmin.getGateway(),
-							ScConstants.BOARD_AP_UDP_SERVER_PORT);
+					ScUdpClient udpClient = new ScUdpClient(mWifiAdmin
+							.getGateway(), ScConstants.BOARD_AP_UDP_SERVER_PORT);
 
-					udpClient.sendData(msg.getBytes());
-					byte[] data = udpClient.recvData(false);
-					udpClient.close();
+					udpClient.sendData(new UserData(msg));
+					UserData userData = udpClient.recvData(false);
+					if (new String(userData.getData()).equals("OK")) {
+						System.out.println("[NetConfig] Net Config Completed");
+						mHandler.sendEmptyMessage(MSG_TOAST_SUCCEED_TO_CONFIG_NET);
 
-					mHandler.sendEmptyMessage(MSG_TOAST_SUCCEED_TO_CONFIG_NET);
+						mDataStorage.setValue("ConfigCompleted", true);
+					} else {
+						System.out.println("[NetConfig] Net Config Failed");
+						mHandler.sendEmptyMessage(MSG_TOAST_FAIL_TO_CONFIG_NET);
+
+						mDataStorage.setValue("ConfigCompleted", false);
+					}
 
 				} catch (Exception e) {
 					// TODO: handle exception
