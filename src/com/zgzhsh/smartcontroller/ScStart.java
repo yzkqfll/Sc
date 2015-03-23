@@ -34,7 +34,7 @@ public class ScStart extends Activity {
 			public void run() {
 
 				Intent configIntent = new Intent(ScStart.this,
-						ScDeviceList.class);
+						ScNetConfig.class);
 
 				startActivity(configIntent);
 			}

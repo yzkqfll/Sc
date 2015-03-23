@@ -20,6 +20,7 @@ public class ScConstants {
 	public static final String BOARD_AP_SSID = "smarthome";
 
 	public static final int BOARD_AP_UDP_SERVER_PORT = 9527;
+	public static final int BOARD_STA_UDP_SERVER_PORT = 9528;
 
 	/**
 	 * Net Config

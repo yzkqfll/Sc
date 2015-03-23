@@ -21,8 +21,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+import android.R.integer;
+
 class UserData {
 	byte[] mData;
+	String mPeerIP;
+	int mPeerPort;
 
 	public UserData(String msg) {
 		mData = msg.getBytes();
@@ -34,6 +38,15 @@ class UserData {
 			mData[i] = data[i];
 	}
 
+	public UserData(byte[] data, int len, String ip, int port) {
+		mData = new byte[len];
+		for (int i = 0; i < len; i++)
+			mData[i] = data[i];
+
+		mPeerIP = ip;
+		mPeerPort = port;
+	}
+
 	public byte[] getData() {
 		return mData;
 	}
@@ -42,6 +55,13 @@ class UserData {
 		return mData.length;
 	}
 
+	public String getPeerIP() {
+		return mPeerIP;
+	}
+
+	public int getPeerPort() {
+		return mPeerPort;
+	}
 }
 
 public class ScUdpClient {
@@ -54,53 +74,68 @@ public class ScUdpClient {
 	private String mServerIp = null;
 	private int mServerPort;
 
-	public ScUdpClient(String server, int serverPort) throws Exception {
+	public ScUdpClient(String server, int serverPort) {
 		mServerIp = server;
 		mServerPort = serverPort;
 
-		/*
-		 * mSocket = new DatagramSocket(9999,
-		 * InetAddress.getByName("127.0.0.1"));
-		 */
-		mSocket = new DatagramSocket();
+		try {
+			/*
+			 * mSocket = new DatagramSocket(9999,
+			 * InetAddress.getByName("127.0.0.1"));
+			 */
+			mSocket = new DatagramSocket();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 
 		System.out.printf("[Udp Client] server is %s：%d\n", server, serverPort);
 	}
 
-	public boolean sendData(final UserData userData) throws IOException {
+	public boolean sendData(final UserData userData) {
 		byte[] data = userData.getData();
 
-		DatagramPacket packet = new DatagramPacket(data, data.length,
-				InetAddress.getByName(mServerIp), mServerPort);
+		try {
+			DatagramPacket packet = new DatagramPacket(data, data.length,
+					InetAddress.getByName(mServerIp), mServerPort);
 
-		System.out.printf(
-				"[Udp Client] [%s:%d] Send msg to %s:%d <%s>, cnt %d\n",
-				mSocket.getLocalAddress(),
-				mSocket.getLocalPort(), // mSocket.getLocalSocketAddress()
-				packet.getAddress().getHostAddress(), packet.getPort(),
-				new String(data, 0, data.length), data.length);
+			System.out.printf(
+					"[Udp Client] [%s:%d] Send msg to %s:%d <%s>, cnt %d\n",
+					mSocket.getLocalAddress(),
+					mSocket.getLocalPort(), // mSocket.getLocalSocketAddress()
+					packet.getAddress().getHostAddress(), packet.getPort(),
+					new String(data, 0, data.length), data.length);
 
-		mSocket.send(packet);
+			mSocket.send(packet);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 
 		return true;
 	}
 
-	public UserData recvData(boolean block) throws IOException {
+	public UserData recvData(boolean block) {
 		DatagramPacket packet = new DatagramPacket(recvBuffer, BUF_LEN);
+		UserData userData = null;
 
-		if (!block)
-			mSocket.setSoTimeout(1000);
+		try {
+			if (!block)
+				mSocket.setSoTimeout(1000);
 
-		mSocket.receive(packet);
+			mSocket.receive(packet);
 
-		UserData userData = new UserData(packet.getData(), packet.getLength());
+			userData = new UserData(packet.getData(), packet.getLength(),
+					packet.getAddress().getHostAddress(), packet.getPort());
 
-		System.out.printf(
-				"[Udp Client] [%s:%d] Get msg from %s:%d <%s>, cnt %d\n",
-				mSocket.getLocalAddress(), mSocket.getLocalPort(), packet
-						.getAddress().getHostAddress(), packet.getPort(),
-				new String(userData.getData(), 0, userData.getLength()),
-				userData.getLength());
+			System.out.printf(
+					"[Udp Client] [%s:%d] Get msg from %s:%d <%s>, cnt %d\n",
+					mSocket.getLocalAddress(), mSocket.getLocalPort(), packet
+							.getAddress().getHostAddress(), packet.getPort(),
+					new String(userData.getData(), 0, userData.getLength()),
+					userData.getLength());
+
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 
 		return userData;
 	}

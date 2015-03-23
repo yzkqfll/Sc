@@ -23,6 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -279,7 +280,33 @@ public class ScNetConfig extends Activity {
 				});
 			}
 		}, periodicDelay, timeInterval);
+	}
 
+	public static String getBoardStaIP() {
+		// ScWifiAdmin scWifiAdmin = new ScWifiAdmin(c);
+
+		String msg = String.format("###%s", "getIP");
+
+		ScUdpClient udpClient = new ScUdpClient("255.255.255.255",
+				ScConstants.BOARD_STA_UDP_SERVER_PORT);
+
+		udpClient.sendData(new UserData(msg));
+		UserData userData = udpClient.recvData(false);
+
+		return userData.getPeerIP();
+	}
+
+	public static int getBoardStaUdpPort() {
+
+		String msg = String.format("###%s", "getIP");
+
+		ScUdpClient udpClient = new ScUdpClient("255.255.255.255",
+				ScConstants.BOARD_STA_UDP_SERVER_PORT);
+
+		udpClient.sendData(new UserData(msg));
+		UserData userData = udpClient.recvData(false);
+
+		return userData.getPeerPort();
 	}
 
 	/**
@@ -306,6 +333,7 @@ public class ScNetConfig extends Activity {
 
 			@Override
 			public void run() {
+
 				mHandler.sendEmptyMessage(MSG_START_NET_CONFIG);
 
 				try {
@@ -326,6 +354,7 @@ public class ScNetConfig extends Activity {
 					mHomeSsid = ssid;
 
 					mHomePasswd = mHomePasswdText.getText().toString().trim();
+					mHomePasswd = "liufangnan2008";
 					System.out.printf(
 							"[NetConfig] Home AP：[%s], password [%s]\n",
 							mHomeSsid, mHomePasswd);
