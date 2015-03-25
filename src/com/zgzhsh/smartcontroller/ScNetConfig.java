@@ -353,7 +353,6 @@ public class ScNetConfig extends Activity {
 					mHomeSsid = ssid;
 
 					mHomePasswd = mHomePasswdText.getText().toString().trim();
-					mHomePasswd = "liufangnan2008";
 					System.out.printf(
 							"[NetConfig] Home AP：[%s], password [%s]\n",
 							mHomeSsid, mHomePasswd);
