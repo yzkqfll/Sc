@@ -16,12 +16,9 @@
 
 package com.zgzhsh.smartcontroller;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-
-import android.R.integer;
 
 class UserData {
 	byte[] mData;
@@ -99,11 +96,15 @@ public class ScUdpClient {
 					InetAddress.getByName(mServerIp), mServerPort);
 
 			System.out.printf(
-					"[Udp Client] [%s:%d] Send msg to %s:%d <%s>, cnt %d\n",
-					mSocket.getLocalAddress(),
-					mSocket.getLocalPort(), // mSocket.getLocalSocketAddress()
+					"[Udp Client] [%s:%d] Send msg to %s:%d, cnt %d\n",
+					mSocket.getLocalAddress(), mSocket.getLocalPort(), // mSocket.getLocalSocketAddress()
 					packet.getAddress().getHostAddress(), packet.getPort(),
-					new String(data, 0, data.length), data.length);
+					// new String(data, 0, data.length),
+					data.length);
+			for (byte b : data) {
+				System.out.printf("%x ", b);
+			}
+			System.out.println();
 
 			mSocket.send(packet);
 		} catch (Exception e) {
@@ -127,11 +128,16 @@ public class ScUdpClient {
 					packet.getAddress().getHostAddress(), packet.getPort());
 
 			System.out.printf(
-					"[Udp Client] [%s:%d] Get msg from %s:%d <%s>, cnt %d\n",
+					"[Udp Client] [%s:%d] Get msg from %s:%d, cnt %d\n",
 					mSocket.getLocalAddress(), mSocket.getLocalPort(), packet
 							.getAddress().getHostAddress(), packet.getPort(),
-					new String(userData.getData(), 0, userData.getLength()),
-					userData.getLength());
+					// new String(userData.getData(), 0, userData.getLength()),
+					packet.getLength());
+			for (int i = 0; i < packet.getLength(); i++) {
+				byte b = userData.getData()[i];
+				System.out.printf("%x ", b);
+			}
+			System.out.println();
 
 		} catch (Exception e) {
 			// TODO: handle exception
