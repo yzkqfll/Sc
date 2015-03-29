@@ -281,33 +281,6 @@ public class ScNetConfig extends Activity {
 		}, periodicDelay, timeInterval);
 	}
 
-	public static String getBoardStaIP() {
-		// ScWifiAdmin scWifiAdmin = new ScWifiAdmin(c);
-
-		String msg = String.format("###%s", "getIP");
-
-		ScUdpClient udpClient = new ScUdpClient("255.255.255.255",
-				ScConstants.BOARD_STA_UDP_SERVER_PORT);
-
-		udpClient.sendData(new UserData(msg));
-		UserData userData = udpClient.recvData(false);
-
-		return userData.getPeerIP();
-	}
-
-	public static int getBoardStaUdpPort() {
-
-		String msg = String.format("###%s", "getIP");
-
-		ScUdpClient udpClient = new ScUdpClient("255.255.255.255",
-				ScConstants.BOARD_STA_UDP_SERVER_PORT);
-
-		udpClient.sendData(new UserData(msg));
-		UserData userData = udpClient.recvData(false);
-
-		return userData.getPeerPort();
-	}
-
 	/**
 	 * Start Net Config:
 	 * <p>
@@ -421,24 +394,18 @@ public class ScNetConfig extends Activity {
 					 */
 					String msg = String.format("###%s:%s$", mHomeSsid,
 							mHomePasswd);
-					// byte[] header = {0x12, 0x34, 0x56, 0x78, 0, 0};
-					byte[] header = { 0x78, 0x56, 0x34, 0x12, 0, 0 };
-					byte[] data = new byte[header.length + msg.length()];
-					for (int i = 0; i < header.length; i++) {
-						data[i] = header[i];
-					}
-					for (int i = 0; i < msg.length(); i++) {
-						data[header.length + i] = msg.getBytes()[i];
-					}
 
 					System.out.printf("[NetConfig] Send ###%s:%s$ to Board\n",
 							mHomeSsid, mHomePasswd);
 
-					ScUdpClient udpClient = new ScUdpClient(mWifiAdmin
-							.getGateway(), ScConstants.BOARD_AP_UDP_SERVER_PORT);
+					ScNetTransceiver scNetTransceiver = new ScNetTransceiver(
+							mWifiAdmin.getGateway(),
+							ScConstants.BOARD_AP_UDP_SERVER_PORT);
+					scNetTransceiver.sendUdpPacket(
+							ScConstants.PKT_TYPE_SET_SSID,
+							ScConstants.PKT_SUBTYPE_NONE, msg);
 
-					udpClient.sendData(new UserData(data, data.length));
-					UserData userData = udpClient.recvData(false);
+					UserData userData = scNetTransceiver.recvUdpPacket(false);
 					if (new String(userData.getData()).equals("OK")) {
 						System.out.println("[NetConfig] Net Config Completed");
 						mHandler.sendEmptyMessage(MSG_TOAST_SUCCEED_TO_CONFIG_NET);
@@ -452,7 +419,7 @@ public class ScNetConfig extends Activity {
 					}
 
 				} catch (Exception e) {
-					// TODO: handle exception
+					 e.printStackTrace();
 				} finally {
 					mStopNetConfig = false;
 

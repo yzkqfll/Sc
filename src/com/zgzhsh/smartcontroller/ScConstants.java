@@ -27,4 +27,16 @@ public class ScConstants {
 	 */
 	public static final String NET_CONFIG_FILE = "net_config";
 
+	/**
+	 * Packet type
+	 */
+	public static final byte PKT_TYPE_SET_SSID = 1;
+	public static final byte PKT_TYPE_QUERY_IP = 2;
+	public static final byte PKT_TYPE_INFRA = 3;
+
+	/**
+	 * Packet subtype
+	 */
+	public static final byte PKT_SUBTYPE_NONE = 0;
+
 }

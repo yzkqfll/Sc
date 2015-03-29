@@ -21,9 +21,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 class UserData {
-	byte[] mData;
-	String mPeerIP;
-	int mPeerPort;
+	private byte[] mData;
+
+	private String mPeerIP;
+	private int mPeerPort;
 
 	public UserData(String msg) {
 		mData = msg.getBytes();
@@ -68,7 +69,7 @@ public class ScUdpClient {
 
 	private DatagramSocket mSocket;
 
-	private String mServerIp = null;
+	private String mServerIp;
 	private int mServerPort;
 
 	public ScUdpClient(String server, int serverPort) {
@@ -82,10 +83,11 @@ public class ScUdpClient {
 			 */
 			mSocket = new DatagramSocket();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 
-		System.out.printf("[Udp Client] server is %s：%d\n", server, serverPort);
+		System.out.printf("[Udp Client] Create Udp Client: server is %s：%d\n",
+				server, serverPort);
 	}
 
 	public boolean sendData(final UserData userData) {
@@ -96,11 +98,11 @@ public class ScUdpClient {
 					InetAddress.getByName(mServerIp), mServerPort);
 
 			System.out.printf(
-					"[Udp Client] [%s:%d] Send msg to %s:%d, cnt %d\n",
-					mSocket.getLocalAddress(), mSocket.getLocalPort(), // mSocket.getLocalSocketAddress()
+					"[Udp Client] [%s:%d] Send msg to %s:%d: <%s>, cnt %d\n",
+					mSocket.getLocalAddress(),
+					mSocket.getLocalPort(), // mSocket.getLocalSocketAddress()
 					packet.getAddress().getHostAddress(), packet.getPort(),
-					// new String(data, 0, data.length),
-					data.length);
+					new String(data, 0, data.length), data.length);
 			for (byte b : data) {
 				System.out.printf("%x ", b);
 			}
@@ -108,7 +110,7 @@ public class ScUdpClient {
 
 			mSocket.send(packet);
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 
 		return true;
@@ -128,19 +130,18 @@ public class ScUdpClient {
 					packet.getAddress().getHostAddress(), packet.getPort());
 
 			System.out.printf(
-					"[Udp Client] [%s:%d] Get msg from %s:%d, cnt %d\n",
+					"[Udp Client] [%s:%d] Get msg from %s:%d: <%s>, cnt %d\n",
 					mSocket.getLocalAddress(), mSocket.getLocalPort(), packet
 							.getAddress().getHostAddress(), packet.getPort(),
-					// new String(userData.getData(), 0, userData.getLength()),
+					new String(userData.getData(), 0, userData.getLength()),
 					packet.getLength());
-			for (int i = 0; i < packet.getLength(); i++) {
-				byte b = userData.getData()[i];
+			for (byte b : userData.getData()) {
 				System.out.printf("%x ", b);
 			}
 			System.out.println();
 
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 
 		return userData;
