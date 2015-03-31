@@ -86,8 +86,7 @@ public class ScDeviceList extends Activity implements OnClickListener {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				TextView type = (TextView) arg1.findViewById(R.id.dl_item_type);
-				// TextView name = (TextView)
-				// arg1.findViewById(R.id.dl_item_name);
+				TextView name = (TextView) arg1.findViewById(R.id.dl_item_name);
 
 				String tv_str = getString(R.string.tv_str);
 				String air_str = getString(R.string.ac_str);
@@ -95,12 +94,11 @@ public class ScDeviceList extends Activity implements OnClickListener {
 				// getResources().getString(R.string.tv_box_str);
 
 				if (type.getText().equals(tv_str)) {
-					/*
-					 * Intent it = new
-					 * Intent(ScDeviceList.this,TvCtrlActivity.class);
-					 * it.putExtra("item_device_name",
-					 * name.getText().toString()); startActivity(it);
-					 */
+
+					Intent it = new Intent(ScDeviceList.this, ScTvCtrl.class);
+					it.putExtra("item_device_name", name.getText().toString());
+					startActivity(it);
+
 				} else if (type.getText().equals(air_str)) {
 					// startActivity(new Intent(ScDeviceList.this,
 					// AirCtrlActivity.class));
@@ -127,7 +125,7 @@ public class ScDeviceList extends Activity implements OnClickListener {
 				String str_name = tv_name.getText().toString();
 
 				// init content
-				mDialog = new Dialog(ScDeviceList.this, R.style.DlDialog);
+				mDialog = new Dialog(ScDeviceList.this, R.style.ScDialog);
 				mDialog.setContentView(R.layout.dev_list_dialog);
 				mDialog.show();
 

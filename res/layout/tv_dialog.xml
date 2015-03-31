@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical|center_horizontal"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="20dip"
+        android:paddingTop="20dip" >
+
+        <TextView
+            android:id="@+id/tv_dialog_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="@dimen/dl_dialog_margin"
+            android:layout_marginRight="@dimen/dl_dialog_margin"
+            android:paddingLeft="@dimen/dl_dialog_txt_margin"
+            android:text="红外学习"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dl_dialog_title_size" />
+    </RelativeLayout>
+
+    <!-- line -->
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_marginLeft="@dimen/dl_dialog_margin"
+        android:layout_marginRight="@dimen/dl_dialog_margin"
+        android:background="@color/grey_background" />
+
+    <!-- sure button -->
+
+    <Button
+        android:id="@+id/tv_dialog_btn"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/dl_dialog_btn_h"
+        android:layout_marginLeft="@dimen/dl_dialog_margin"
+        android:layout_marginRight="@dimen/dl_dialog_margin"
+        android:background="@drawable/dl_dialog_btn_sel"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="@dimen/dl_dialog_txt_margin"
+        android:text="退出学习"
+        android:textSize="@dimen/dl_dialog_btn_size" />
+
+</LinearLayout>

@@ -38,5 +38,19 @@ public class ScConstants {
 	 * Packet subtype
 	 */
 	public static final byte PKT_SUBTYPE_NONE = 0;
+	public static final byte PKT_SUBTYPE_IR_CONNECT = 1;
+	public static final byte PKT_SUBTYPE_IR_ENABLE_ICC = 2;
+	public static final byte PKT_SUBTYPE_IR_DECODE = 3;
+	public static final byte PKT_SUBTYPE_IR_DISABLE_ICC = 4;
+	public static final byte PKT_SUBTYPE_IR_SEND = 5;
+
+	/**
+	 * IR key name
+	 */
+	public static final String IR_KEY_POWER = "irkeypower";
+	public static final String IR_KEY_CH_UP = "irkeychup";
+	public static final String IR_KEY_CH_DOWN = "irkeychdown";
+	public static final String IR_KEY_VOL_UP = "irkeyvolup";
+	public static final String IR_KEY_VOL_DOWN = "irkeyvoldown";
 
 }

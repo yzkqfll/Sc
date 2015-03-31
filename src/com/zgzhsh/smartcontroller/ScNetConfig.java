@@ -23,6 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -411,6 +412,11 @@ public class ScNetConfig extends Activity {
 						mHandler.sendEmptyMessage(MSG_TOAST_SUCCEED_TO_CONFIG_NET);
 
 						mDataStorage.setValue("ConfigCompleted", true);
+
+						Intent it = new Intent(ScNetConfig.this,
+								ScDeviceList.class);
+						startActivity(it);
+
 					} else {
 						System.out.println("[NetConfig] Net Config Failed");
 						mHandler.sendEmptyMessage(MSG_TOAST_FAIL_TO_CONFIG_NET);
@@ -419,7 +425,7 @@ public class ScNetConfig extends Activity {
 					}
 
 				} catch (Exception e) {
-					 e.printStackTrace();
+					e.printStackTrace();
 				} finally {
 					mStopNetConfig = false;
 

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/tv_btn_pressed_bg" android:state_pressed="true"/>
+    <item android:drawable="@drawable/tv_key_power" android:state_pressed="false"/>
+
+</selector><!--
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_enabled="true" android:state_focused="false" android:state_pressed="false">
+        <layer-list>
+            <item android:drawable="@drawable/tv_power" />
+            <item>
+                <shape android:shape="oval">
+                    <stroke android:width="3dp" android:color="@color/white" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+
+    <item android:state_enabled="true" android:state_pressed="true">
+        <layer-list>
+             <item android:drawable="@drawable/tv_power" />
+             <item>
+                <shape android:shape="oval">
+                    <gradient android:angle="0" android:endColor="@color/tv_btn_bg_ecolor" android:startColor="@color/tv_btn_bg_bcolor" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+</selector>
+-->

@@ -18,7 +18,7 @@
     </style>
     
     <!-- dialog style when long press list item in device list screen -->
-    <style name="DlDialog" parent="@android:Theme.Dialog">
+    <style name="ScDialog" parent="@android:Theme.Dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item> 
         <item name="android:windowBackground">@color/white</item>
