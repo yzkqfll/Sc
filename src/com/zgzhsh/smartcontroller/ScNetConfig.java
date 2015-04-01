@@ -160,6 +160,14 @@ public class ScNetConfig extends Activity {
 				t.setGravity(Gravity.CENTER, 0, 0);
 				t.show();
 
+				/**
+				 * Jump to Device list activity and finish net config activity
+				 */
+				Intent intent = new Intent(ScNetConfig.this, ScDeviceList.class);
+				startActivity(intent);
+
+				finish();
+
 				break;
 
 			case MSG_TOAST_FAIL_TO_CONFIG_NET:
@@ -411,17 +419,13 @@ public class ScNetConfig extends Activity {
 						System.out.println("[NetConfig] Net Config Completed");
 						mHandler.sendEmptyMessage(MSG_TOAST_SUCCEED_TO_CONFIG_NET);
 
-						mDataStorage.setValue("ConfigCompleted", true);
-
-						Intent it = new Intent(ScNetConfig.this,
-								ScDeviceList.class);
-						startActivity(it);
+						mDataStorage.setValue("NetConfigCompleted", true);
 
 					} else {
 						System.out.println("[NetConfig] Net Config Failed");
 						mHandler.sendEmptyMessage(MSG_TOAST_FAIL_TO_CONFIG_NET);
 
-						mDataStorage.setValue("ConfigCompleted", false);
+						mDataStorage.setValue("NetConfigCompleted", false);
 					}
 
 				} catch (Exception e) {
