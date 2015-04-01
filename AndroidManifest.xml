@@ -45,6 +45,10 @@
 			android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
                 
+        <activity
+            android:name=".ScTvCtrl"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
     </application>
 
 </manifest>
