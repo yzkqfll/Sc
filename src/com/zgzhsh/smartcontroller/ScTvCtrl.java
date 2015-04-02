@@ -77,14 +77,17 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 				Toast.makeText(getApplicationContext(),
 						getString(R.string.irt_txt_send_ok), Toast.LENGTH_LONG)
 						.show();
+				break;
 			case MSG_IR_SEND_FAILED:
 				Toast.makeText(getApplicationContext(),
 						getString(R.string.irt_txt_send_failed),
 						Toast.LENGTH_LONG).show();
+				break;
 			case MSG_IR_NO_ACK:
 				Toast.makeText(getApplicationContext(),
 						getString(R.string.irt_txt_no_ack), Toast.LENGTH_LONG)
 						.show();
+				break;
 			default:
 				break;
 			}
@@ -117,7 +120,7 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 								(String) msg.obj);
 
 						if (new String(mIrAdm.RecvPacket(false).getData())
-								.equals("IRSend:OK")) {
+								.equals("IRSend: OK")) {
 							mMainHandler.sendEmptyMessage(MSG_IR_SEND_OK);
 						} else {
 							mMainHandler.sendEmptyMessage(MSG_IR_SEND_FAILED);
@@ -207,8 +210,9 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 			Toast.makeText(this, getString(R.string.irs_txt_empty),
 					Toast.LENGTH_LONG).show();
 		} else {
+			System.out.println("[IR Send]" + keyVal);
 			Message msg = mSubHandler.obtainMessage(MSG_IR_SEND, 1, 1, keyVal);
-			mMainHandler.sendMessage(msg);
+			mSubHandler.sendMessage(msg);
 
 		}
 	}
@@ -272,7 +276,6 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				byte[] data = null;
 				String msg = null;
 
 				try {
@@ -294,41 +297,43 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 					// update UI
 					mMainHandler.sendEmptyMessage(MSG_IR_STUDY_START);
 
-					// scan the board study result in timeout
-					for (int i = 0; i < 20; i++) {
+					// scan the board study result every second
+					for (int i = 0; i < 15; i++) {
 
 						if (mStopIrStudy) {
+							// Close board input capture
+							mIrAdm.sendPacket(
+									ScConstants.PKT_SUBTYPE_IR_DISABLE_ICC,
+									"userClose");
+							mIrAdm.RecvPacket(false);
 							return;
 						}
+
+						Thread.sleep(500);
 
 						mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_DECODE,
 								"check_decode");
 						msg = new String(mIrAdm.RecvPacket(false).getData());
 
-						if (msg.equals("IRDecode: OK")) {
+						if (!msg.equals("IRDecode: ERR")) {
 
-							System.out.println(mCurConstKey);
+							// get the value string
+							String a[] = msg.split(" ");
 
 							// save to local flash
-							mIrAdm.saveKey(mCurConstKey, msg);
+							mIrAdm.saveKey(mCurConstKey, a[1]);
 
 							// update UI
 							mMainHandler.sendEmptyMessage(MSG_IR_STUDY_SUCCESS);
 
-							// Close board input capture
-							mIrAdm.sendPacket(
-									ScConstants.PKT_SUBTYPE_IR_DISABLE_ICC,
-									"normal_close");
-							mIrAdm.RecvPacket(false);
-
-							return;
+							return; // Close input is already done by board
 						}
 
 						Thread.sleep(500);
 					}
 
 					mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_DISABLE_ICC,
-							"timeout_close");
+							"timeoutClose");
 					mIrAdm.RecvPacket(false);
 
 					mMainHandler.sendEmptyMessage(MSG_IR_STUDY_TIMEOUT);

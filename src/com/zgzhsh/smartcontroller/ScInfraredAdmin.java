@@ -21,9 +21,9 @@ public class ScInfraredAdmin {
 
 	public ScInfraredAdmin(Context context) {
 
-		mDataStor = new ScDataStorage(context, "Data");
+		mDataStor = new ScDataStorage(context, "key_info");
 
-		mNetTransceiver = new ScNetTransceiver("192.168.1.105", 9528);
+		mNetTransceiver = new ScNetTransceiver("192.168.1.105",ScConstants.BOARD_STA_UDP_SERVER_PORT);
 	}
 
 	public boolean isStudySucceed() {
@@ -53,7 +53,7 @@ public class ScInfraredAdmin {
 	public String searchKey(String key, String defValue) {
 		String retVal = getKey(key, defValue);
 
-		if (retVal == defValue)
+		if (retVal.equals(defValue))
 			return null;
 		else
 			return retVal;
