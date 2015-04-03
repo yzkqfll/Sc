@@ -23,7 +23,7 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 	static final int MSG_IR_STUDY_TIMEOUT = 3;
 	static final int MSG_IR_STUDY_SUCCESS = 4;
 	static final int MSG_IR_STUDY_EXCEP = 5;
-	static final int MSG_IR_SEND = 6;
+	static final int MSG_IR_SEND_NEC = 6;
 	static final int MSG_IR_SEND_OK = 7;
 	static final int MSG_IR_SEND_FAILED = 8;
 	static final int MSG_IR_NO_ACK = 9;
@@ -114,13 +114,13 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 			public void handleMessage(Message msg) {
 				super.handleMessage(msg);
 				switch (msg.what) {
-				case MSG_IR_SEND:
+				case MSG_IR_SEND_NEC:
 					try {
 						mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_SEND,
 								(String) msg.obj);
 
 						if (new String(mIrAdm.RecvPacket(false).getData())
-								.equals("IRSend: OK")) {
+								.equals("IRSendNEC: OK")) {
 							mMainHandler.sendEmptyMessage(MSG_IR_SEND_OK);
 						} else {
 							mMainHandler.sendEmptyMessage(MSG_IR_SEND_FAILED);
@@ -211,7 +211,7 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 					Toast.LENGTH_LONG).show();
 		} else {
 			System.out.println("[IR Send]" + keyVal);
-			Message msg = mSubHandler.obtainMessage(MSG_IR_SEND, 1, 1, keyVal);
+			Message msg = mSubHandler.obtainMessage(MSG_IR_SEND_NEC, 1, 1, keyVal);
 			mSubHandler.sendMessage(msg);
 
 		}
