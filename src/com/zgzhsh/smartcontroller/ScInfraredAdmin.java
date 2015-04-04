@@ -23,7 +23,20 @@ public class ScInfraredAdmin {
 
 		mDataStor = new ScDataStorage(context, "key_info");
 
-		mNetTransceiver = new ScNetTransceiver("192.168.1.105",ScConstants.BOARD_STA_UDP_SERVER_PORT);
+		createNetTransceiver();
+	}
+
+	private void createNetTransceiver() {
+
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				mNetTransceiver = new ScNetTransceiver(
+						ScConstants.BOARD_STA_UDP_SERVER_PORT);
+			}
+		}).start();
 	}
 
 	public boolean isStudySucceed() {
