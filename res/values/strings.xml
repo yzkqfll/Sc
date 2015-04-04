@@ -25,6 +25,7 @@
     <string name="da_plz_input_name">请输入设备名称</string>
     <string name="da_plz_input_type">请输入设备种类</string>
     <string name="dl_dialog_del_dev">删除该设备</string>
+    <string name="dl_dev_rep">设备已经存在</string>
     <string name="toast_wifi_not_connected_str">手机未连接WIFI</string>
     <string name="tv_vol_txt">音量</string>
     <string name="tv_ch_txt">频道</string>

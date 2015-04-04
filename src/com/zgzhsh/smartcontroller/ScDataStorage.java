@@ -63,4 +63,8 @@ public class ScDataStorage {
 		return mSharedPreferences.getBoolean(key, defValue);
 	}
 
+	public void clear() {
+		mEditor.clear();
+		mEditor.commit();
+	}
 }

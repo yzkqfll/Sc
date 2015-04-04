@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.TextView;
@@ -26,6 +27,8 @@ public class ScDeviceList extends Activity implements OnClickListener {
 	private ArrayList<HashMap<String, Object>> listItem;
 	private ScDlSharedPref devlist_sp;
 	private Dialog mDialog;
+	private ScDataStorage mDeviceData;
+	private String mDeviceName;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -96,7 +99,10 @@ public class ScDeviceList extends Activity implements OnClickListener {
 				if (type.getText().equals(tv_str)) {
 
 					Intent it = new Intent(ScDeviceList.this, ScTvCtrl.class);
+
 					it.putExtra("item_device_name", name.getText().toString());
+					it.putExtra("file_name", name.getText().toString()
+							+ "_key_info");
 					startActivity(it);
 
 				} else if (type.getText().equals(air_str)) {
@@ -122,7 +128,7 @@ public class ScDeviceList extends Activity implements OnClickListener {
 				// get item name
 				TextView tv_name = (TextView) view
 						.findViewById(R.id.dl_item_name);
-				String str_name = tv_name.getText().toString();
+				mDeviceName = tv_name.getText().toString();
 
 				// init content
 				mDialog = new Dialog(ScDeviceList.this, R.style.ScDialog);
@@ -132,7 +138,7 @@ public class ScDeviceList extends Activity implements OnClickListener {
 				// change content
 				TextView tv_title = (TextView) mDialog.getWindow()
 						.findViewById(R.id.dl_dialog_title);
-				tv_title.setText(str_name);
+				tv_title.setText(mDeviceName);
 
 				// set on dialog click
 				final int idx = position;
@@ -140,7 +146,15 @@ public class ScDeviceList extends Activity implements OnClickListener {
 						R.id.dl_dialog_del_dev_btn);
 				btn.setOnClickListener(new OnClickListener() {
 					public void onClick(View v) {
+						// delete item from list view
 						deleteItem(idx);
+
+						// clear device data stored in flash
+						mDeviceData = new ScDataStorage(ScDeviceList.this,
+								mDeviceName + "_key_info");
+						mDeviceData.clear();
+
+						// dismiss the pop-up dialog
 						mDialog.dismiss();
 					}
 				});
@@ -198,6 +212,7 @@ public class ScDeviceList extends Activity implements OnClickListener {
 
 		String type_tv = getString(R.string.tv_str);
 		String type_air = getString(R.string.ac_str);
+		String dev_rep = getString(R.string.dl_dev_rep);
 
 		if (dev_type.equals(type_tv)) {
 			item.put("image", R.drawable.ic_tv);
@@ -206,6 +221,12 @@ public class ScDeviceList extends Activity implements OnClickListener {
 		}
 		item.put("type", dev_type);
 		item.put("name", dev_name);
+
+		if (searchDevice(dev_name, dev_type)) {
+			Toast.makeText(this, dev_rep, Toast.LENGTH_LONG).show();
+			return;
+		}
+		item.put("namecp", dev_name);
 		listItem.add(item);
 		listItemAdapter.notifyDataSetChanged();
 	}
@@ -218,6 +239,18 @@ public class ScDeviceList extends Activity implements OnClickListener {
 	public void onDestroy() {
 		saveDevListInfo();
 		super.onDestroy();
+	}
+
+	public boolean searchDevice(String new_dev, String dev_type) {
+
+		for (int i = 0; i < listItem.size(); i++) {
+			String name = listItem.get(i).get("name").toString();
+			String type = listItem.get(i).get("type").toString();
+			if (name.equals(new_dev) && type.equals(dev_type)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void saveDevListInfo() { // format: "type/name,type/name"

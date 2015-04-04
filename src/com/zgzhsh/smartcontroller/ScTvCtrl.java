@@ -28,6 +28,8 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 	static final int MSG_IR_SEND_FAILED = 8;
 	static final int MSG_IR_NO_ACK = 9;
 
+	private Intent mIntent = null;
+
 	private TextView mHdrTitle = null;
 	private ImageButton mIbBack = null;
 	private ImageButton mIbPower = null;
@@ -100,7 +102,12 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sc_tv_ctrl);
 
-		mIrAdm = new ScInfraredAdmin(ScTvCtrl.this);
+		// get intent
+		mIntent = this.getIntent();
+
+		// create IR admin
+		mIrAdm = new ScInfraredAdmin(ScTvCtrl.this,
+				mIntent.getStringExtra("file_name"));
 
 		initViews();
 
@@ -141,11 +148,8 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 
 	private void initViews() {
 		// set title name
-		Intent it = this.getIntent();
-		String title_name = it.getStringExtra("item_device_name");
-
 		mHdrTitle = (TextView) findViewById(R.id.tv_ctrl_title);
-		mHdrTitle.setText(title_name);
+		mHdrTitle.setText(mIntent.getStringExtra("item_device_name"));
 
 		// find back button
 		mIbBack = (ImageButton) findViewById(R.id.tv_back_btn);
@@ -211,7 +215,8 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 					Toast.LENGTH_LONG).show();
 		} else {
 			System.out.println("[IR Send]" + keyVal);
-			Message msg = mSubHandler.obtainMessage(MSG_IR_SEND_NEC, 1, 1, keyVal);
+			Message msg = mSubHandler.obtainMessage(MSG_IR_SEND_NEC, 1, 1,
+					keyVal);
 			mSubHandler.sendMessage(msg);
 
 		}
@@ -261,13 +266,17 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 		}
 	}
 
-	/*
-	 * startIrStudy:
-	 * ------------
-	 * a. Setup a connect with board
-	 * b. Enable board's input CC function
-	 * c. Check board's study result
-	 * d. Disable board's input CC function
+	/**
+	 * Start IR Study:
+	 * <p>
+	 * 1) Setup a connect with board
+	 * <p>
+	 * 2) Enable board's input CC function
+	 * <p>
+	 * 3) Check board's study result
+	 * <p>
+	 * 4) Disable board's input CC function
+	 * <p>
 	 */
 	private boolean startIrStudy() {
 
@@ -353,6 +362,10 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 		}).start();
 
 		return true;
+	}
+
+	public void clearData() {
+		mIrAdm.clear();
 	}
 
 	public void onDestroy() {

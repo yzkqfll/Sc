@@ -19,9 +19,9 @@ public class ScInfraredAdmin {
 	// remote control
 	private ScNetTransceiver mNetTransceiver;
 
-	public ScInfraredAdmin(Context context) {
+	public ScInfraredAdmin(Context context, String file) {
 
-		mDataStor = new ScDataStorage(context, "key_info");
+		mDataStor = new ScDataStorage(context, file);
 
 		createNetTransceiver();
 	}
@@ -70,6 +70,10 @@ public class ScInfraredAdmin {
 			return null;
 		else
 			return retVal;
+	}
+
+	public void clear() {
+		mDataStor.clear();
 	}
 
 	public void sendPacket(byte type, String msg) {
