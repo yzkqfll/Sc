@@ -83,7 +83,7 @@ public class ScInfraredAdmin {
 
 	public UserData RecvPacket(boolean block) {
 
-		return mNetTransceiver.recvUdpPacket(false);
+		return mNetTransceiver.recvUdpPacket(false, 1000);
 	}
 
 	public byte[] getDecResult() {

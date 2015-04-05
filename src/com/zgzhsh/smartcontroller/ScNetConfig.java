@@ -100,8 +100,6 @@ public class ScNetConfig extends Activity {
 			case MSG_START_NET_CONFIG:
 
 				mInProcess = true;
-				System.out
-						.println("[NetConfig][MSG] Start net config: Update UI");
 				mStartNetConfigBtn
 						.setBackgroundResource(R.drawable.nc_btn_pressed);
 				mProgressBar.setVisibility(ProgressBar.VISIBLE);
@@ -112,8 +110,6 @@ public class ScNetConfig extends Activity {
 
 			case MSG_STOP_NET_CONFIG:
 				mInProcess = false;
-				System.out
-						.println("[NetConfig][MSG] Stop net config: Update UI");
 				mStartNetConfigBtn.setBackgroundResource(R.drawable.nc_btn);
 				mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 				mStartNetConfigBtn.setText(getResources().getString(
@@ -256,11 +252,11 @@ public class ScNetConfig extends Activity {
 				case R.id.nc_start:
 
 					if (!mInProcess) {
-						System.out.println("[NetConfig] User Start net config");
+						System.out.println("[NetConfig] Start net config");
 						startNetConfig();
 					} else {
 						System.out
-								.println("[NetConfig] User wants to stop net config");
+								.println("[NetConfig] Stop net config");
 						mStopNetConfig = true;
 					}
 
@@ -335,9 +331,6 @@ public class ScNetConfig extends Activity {
 					mHomeSsid = ssid;
 
 					mHomePasswd = mHomePasswdText.getText().toString().trim();
-					System.out.printf(
-							"[NetConfig] Home AP：[%s], password [%s]\n",
-							mHomeSsid, mHomePasswd);
 
 					/**
 					 * 1. Disconnect from Home AP
@@ -414,7 +407,7 @@ public class ScNetConfig extends Activity {
 							ScConstants.PKT_TYPE_SET_SSID,
 							ScConstants.PKT_SUBTYPE_NONE, msg);
 
-					UserData userData = scNetTransceiver.recvUdpPacket(false);
+					UserData userData = scNetTransceiver.recvUdpPacket(false, 500);
 					if (new String(userData.getData()).equals("OK")) {
 						System.out.println("[NetConfig] Net Config Completed");
 						mHandler.sendEmptyMessage(MSG_TOAST_SUCCEED_TO_CONFIG_NET);
@@ -477,7 +470,7 @@ public class ScNetConfig extends Activity {
 						// System.out.printf("[NetConfig] broadcast: connected to %s\n"
 						// + wifiAdmin.getSSID());
 						System.out
-								.println("[NetConfig] broadcast: connected to "
+								.println("[NetConfig][Broadcast] connected to "
 										+ mWifiAdmin.getSSID());
 					} else {
 						// System.out.printf("[NetConfig] broadcast: disconnected\n");

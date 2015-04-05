@@ -28,7 +28,7 @@ public class ScNetTransceiver {
 		ScUdpClient udpClient = new ScUdpClient("255.255.255.255", port);
 
 		udpClient.sendData(userData);
-		UserData recvUserData = udpClient.recvData(false);
+		UserData recvUserData = udpClient.recvData(false, 1000);
 		if (recvUserData != null)
 			return recvUserData.getPeerIP();
 		else
@@ -36,6 +36,7 @@ public class ScNetTransceiver {
 	}
 
 	private UserData encapPacket(byte type, byte subtype, String msg) {
+
 		byte[] header = { 0x78, 0x56, 0x34, 0x12, type, subtype };
 
 		byte[] packet = new byte[header.length + msg.length()];
@@ -50,6 +51,7 @@ public class ScNetTransceiver {
 	}
 
 	private UserData encapPacket(byte type, byte subtype, byte[] data) {
+
 		byte[] header = { 0x78, 0x56, 0x34, 0x12, type, subtype };
 
 		byte[] packet = new byte[header.length + data.length];
@@ -79,8 +81,8 @@ public class ScNetTransceiver {
 		return true;
 	}
 
-	public UserData recvUdpPacket(boolean block) {
-		UserData userData = mScUdpClient.recvData(block);
+	public UserData recvUdpPacket(boolean block, int ms) {
+		UserData userData = mScUdpClient.recvData(block, ms);
 
 		return userData;
 	}

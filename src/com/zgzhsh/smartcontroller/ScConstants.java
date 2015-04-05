@@ -22,6 +22,8 @@ public class ScConstants {
 	public static final int BOARD_AP_UDP_SERVER_PORT = 9527;
 	public static final int BOARD_STA_UDP_SERVER_PORT = 9528;
 
+	public static final boolean PRINT_PKT_CONTENT = false;
+
 	/**
 	 * Net Config
 	 */
