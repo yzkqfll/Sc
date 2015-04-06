@@ -29,13 +29,12 @@
     <string name="toast_wifi_not_connected_str">手机未连接WIFI</string>
     <string name="tv_vol_txt">音量</string>
     <string name="tv_ch_txt">频道</string>
+    <string name="ir_comm_excep">请确认设备在线</string>
     <string name="irs_txt_stop">停止学习</string>
     <string name="irs_txt_start">开始学习</string>
     <string name="irs_txt_timeout">学习超时</string>
     <string name="irs_txt_success">学习成功</string>
     <string name="irs_txt_empty">按键还未学习</string>
-    <string name="irs_txt_except">请确认网络正常</string>
     <string name="irt_txt_send_ok">发送成功</string>
     <string name="irt_txt_send_failed">发送失败</string>
-    <string name="irt_txt_no_ack">设备无响应</string>
 </resources>

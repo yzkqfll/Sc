@@ -26,7 +26,7 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 	static final int MSG_IR_SEND_NEC = 6;
 	static final int MSG_IR_SEND_OK = 7;
 	static final int MSG_IR_SEND_FAILED = 8;
-	static final int MSG_IR_NO_ACK = 9;
+	static final int MSG_IR_SEND_EXCEP = 9;
 
 	private Intent mIntent = null;
 
@@ -58,9 +58,10 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 			case MSG_IR_STUDY_START:
 				mDialog.show();
 				break;
+			case MSG_IR_SEND_EXCEP:
 			case MSG_IR_STUDY_EXCEP:
 				Toast.makeText(getApplicationContext(),
-						getString(R.string.irs_txt_except), Toast.LENGTH_LONG)
+						getString(R.string.ir_comm_excep), Toast.LENGTH_LONG)
 						.show();
 				break;
 			case MSG_IR_STUDY_TIMEOUT:
@@ -84,11 +85,6 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 				Toast.makeText(getApplicationContext(),
 						getString(R.string.irt_txt_send_failed),
 						Toast.LENGTH_LONG).show();
-				break;
-			case MSG_IR_NO_ACK:
-				Toast.makeText(getApplicationContext(),
-						getString(R.string.irt_txt_no_ack), Toast.LENGTH_LONG)
-						.show();
 				break;
 			default:
 				break;
@@ -136,7 +132,7 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						mMainHandler.sendEmptyMessage(MSG_IR_NO_ACK);
+						mMainHandler.sendEmptyMessage(MSG_IR_SEND_EXCEP);
 					}
 					break;
 				default:

@@ -20,8 +20,8 @@
     <dimen name="dl_dialog_btn_h">50dip</dimen>
     <dimen name="dl_dialog_title_size">20dip</dimen>
     <dimen name="dl_dialog_btn_size">18dip</dimen>
-    <dimen name="tv_widget_width">50dip</dimen>
-    <dimen name="tv_btn_size">50dip</dimen>
+    <dimen name="tv_widget_width">55dip</dimen>
+    <dimen name="tv_btn_size">55dip</dimen>
     <dimen name="tv_txt_size">16dip</dimen>
     
     

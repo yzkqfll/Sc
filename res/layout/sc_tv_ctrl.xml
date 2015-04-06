@@ -13,7 +13,7 @@
         style="@android:style/Theme.Black.NoTitleBar.Fullscreen"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/header_color"
+        android:background="@drawable/nc_header_bg"
         android:minHeight="@dimen/nc_header_height" >
 
         <TextView
@@ -41,91 +41,90 @@
     <RelativeLayout
         android:id="@+id/tv_view"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_header_view"
-        android:paddingTop="@dimen/nc_header_height" >
+        android:layout_height="fill_parent"
+        android:layout_below="@+id/tv_header_view" >
+
+        <TextView
+            android:id="@+id/tv_center_view"
+            android:layout_width="@dimen/tv_widget_width"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="@color/grey_text_color"
+            android:textSize="@dimen/tv_txt_size" />
+
+        <TextView
+            android:id="@+id/tv_ch_txt_view"
+            android:layout_width="@dimen/tv_widget_width"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/tv_center_view"
+            android:layout_alignTop="@+id/tv_center_view"
+            android:text="@string/tv_ch_txt"
+            android:gravity="center"
+            android:textColor="@color/grey_text_color"
+            android:textSize="@dimen/tv_txt_size" />
+
+        
+        <ImageButton
+            android:id="@+id/tv_btn_ch_up"
+            android:layout_width="@dimen/tv_btn_size"
+            android:layout_height="@dimen/tv_btn_size"
+            android:layout_above="@+id/tv_ch_txt_view"
+            android:layout_alignLeft="@+id/tv_ch_txt_view"
+            android:background="@drawable/tv_btn_bg_sel"
+            android:scaleType="centerInside"
+            android:src="@drawable/tv_key_up" />
+
+        <ImageButton
+            android:id="@+id/tv_btn_ch_down"
+            android:layout_width="@dimen/tv_btn_size"
+            android:layout_height="@dimen/tv_btn_size"
+            android:layout_below="@+id/tv_ch_txt_view"
+            android:layout_alignLeft="@+id/tv_ch_txt_view"
+            android:background="@drawable/tv_btn_bg_sel"
+            android:scaleType="centerInside"
+            android:src="@drawable/tv_key_down" />
+
+        <TextView
+            android:id="@+id/tv_vol_txt_view"
+            android:layout_width="@dimen/tv_widget_width"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/tv_center_view"
+            android:layout_alignTop="@+id/tv_center_view"
+            android:gravity="center"
+            android:text="@string/tv_vol_txt"
+            android:textColor="@color/grey_text_color"
+            android:textSize="@dimen/tv_txt_size" />
+
+        <ImageButton
+            android:id="@+id/tv_btn_vol_up"
+            android:layout_width="@dimen/tv_btn_size"
+            android:layout_height="@dimen/tv_btn_size"
+            android:layout_above="@+id/tv_vol_txt_view"
+            android:layout_alignLeft="@+id/tv_vol_txt_view"
+            android:background="@drawable/tv_btn_bg_sel"
+            android:scaleType="centerInside"
+            android:src="@drawable/tv_key_up" />
+
+        <ImageButton
+            android:id="@+id/tv_btn_vol_down"
+            android:layout_width="@dimen/tv_btn_size"
+            android:layout_height="@dimen/tv_btn_size"
+            android:layout_below="@+id/tv_vol_txt_view"
+            android:layout_alignLeft="@+id/tv_vol_txt_view"
+            android:background="@drawable/tv_btn_bg_sel"
+            android:scaleType="centerInside"
+            android:src="@drawable/tv_key_down" />
 
         <ImageButton
             android:id="@+id/tv_btn_pwr"
             android:layout_width="@dimen/tv_btn_size"
             android:layout_height="@dimen/tv_btn_size"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/tv_btn_bg"
-            android:scaleType="fitCenter"
-            android:src="@drawable/tv_btn_pwr_sel" >
+            android:layout_above="@+id/tv_btn_vol_up"
+            android:layout_alignLeft="@+id/tv_center_view"
+            android:background="@drawable/tv_btn_pwr_sel"
+             >
         </ImageButton>
-
-        <LinearLayout
-            android:id="@+id/tv_ch_wiget"
-            android:layout_width="@dimen/tv_widget_width"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_btn_pwr"
-            android:layout_toLeftOf="@+id/tv_btn_pwr"
-            android:orientation="vertical" >
-
-            <!-- android:background="@drawable/bg_vol_widget" -->
-
-            <ImageButton
-                android:id="@+id/tv_btn_ch_up"
-                android:layout_width="@dimen/tv_btn_size"
-                android:layout_height="@dimen/tv_btn_size"
-                android:background="@drawable/tv_btn_bg"
-                android:scaleType="fitCenter"
-                android:src="@drawable/tv_btn_up_sel" />
-
-            <TextView
-                android:id="@+id/tv_ch_txt"
-                android:layout_width="@dimen/tv_widget_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/tv_ch_txt"
-                android:textColor="@color/grey_text_color"
-                android:textSize="@dimen/tv_txt_size" />
-
-            <ImageButton
-                android:id="@+id/tv_btn_ch_down"
-                android:layout_width="@dimen/tv_btn_size"
-                android:layout_height="@dimen/tv_btn_size"
-                android:background="@drawable/tv_btn_bg"
-                android:scaleType="fitCenter"
-                android:src="@drawable/tv_btn_down_sel" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tv_vol_wiget"
-            android:layout_width="@dimen/tv_widget_width"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_btn_pwr"
-            android:layout_toRightOf="@+id/tv_btn_pwr"
-            android:orientation="vertical" >
-
-            <ImageButton
-                android:id="@+id/tv_btn_vol_up"
-                android:layout_width="@dimen/tv_btn_size"
-                android:layout_height="@dimen/tv_btn_size"
-                android:background="@drawable/tv_btn_bg"
-                android:scaleType="fitCenter"
-                android:src="@drawable/tv_btn_up_sel" />
-
-            <TextView
-                android:id="@+id/tv_vol_txt"
-                android:layout_width="@dimen/tv_widget_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/tv_vol_txt"
-                android:textColor="@color/grey_text_color"
-                android:textSize="@dimen/tv_txt_size" />
-
-            <ImageButton
-                android:id="@+id/tv_btn_vol_down"
-                android:layout_width="@dimen/tv_btn_size"
-                android:layout_height="@dimen/tv_btn_size"
-                android:background="@drawable/tv_btn_bg"
-                android:scaleType="fitCenter"
-                android:src="@drawable/tv_btn_down_sel" />
-        </LinearLayout>
+ 
     </RelativeLayout>
-
-    <!-- android:layout_height="fill_parent" -->
 
 </RelativeLayout>
