@@ -81,9 +81,9 @@ public class ScInfraredAdmin {
 		mNetTransceiver.sendUdpPacket(ScConstants.PKT_TYPE_INFRA, type, msg);
 	}
 
-	public UserData RecvPacket(boolean block) {
+	public UserData RecvPacket(boolean block, int ms) {
 
-		return mNetTransceiver.recvUdpPacket(false, 1000);
+		return mNetTransceiver.recvUdpPacket(false, ms);
 	}
 
 	public byte[] getDecResult() {

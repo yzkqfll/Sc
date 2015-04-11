@@ -122,7 +122,7 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 						mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_SEND,
 								(String) msg.obj);
 
-						if (new String(mIrAdm.RecvPacket(false).getData())
+						if (new String(mIrAdm.RecvPacket(false, 1000).getData())
 								.equals("IRSendNEC: OK")) {
 							mMainHandler.sendEmptyMessage(MSG_IR_SEND_OK);
 						} else {
@@ -282,20 +282,27 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 			public void run() {
 				// TODO Auto-generated method stub
 				String msg = null;
+				boolean excep = false;
 
 				try {
 
 					// setup a connect
 					mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_CONNECT,
 							"setup_connect");
-					mIrAdm.RecvPacket(false);
+					if (null == mIrAdm.RecvPacket(false, 1000)) {
+						excep = true;
+						return; // exception
+					}
 
 					Thread.sleep(100);
 
 					// enable input capture
 					mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_ENABLE_ICC,
 							"enable_icc");
-					mIrAdm.RecvPacket(false);
+					if (null == mIrAdm.RecvPacket(false, 1000)) {
+						excep = true;
+						return; // exception
+					}
 
 					Thread.sleep(100);
 
@@ -305,20 +312,26 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 					// scan the board study result every second
 					for (int i = 0; i < 15; i++) {
 
-						if (mStopIrStudy) {
-							// Close board input capture
-							mIrAdm.sendPacket(
-									ScConstants.PKT_SUBTYPE_IR_DISABLE_ICC,
-									"userClose");
-							mIrAdm.RecvPacket(false);
-							return;
+						for (int j = 0; j < 10; j++) {
+							if (mStopIrStudy) {
+								// Close board input capture
+								mIrAdm.sendPacket(
+										ScConstants.PKT_SUBTYPE_IR_DISABLE_ICC,
+										"userClose");
+								if (null == mIrAdm.RecvPacket(false, 1000)) {
+									excep = true;
+								}
+								return;
+							}
+							Thread.sleep(100);
 						}
-
-						Thread.sleep(500);
 
 						mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_DECODE,
 								"check_decode");
-						msg = new String(mIrAdm.RecvPacket(false).getData());
+						msg = new String(mIrAdm.RecvPacket(false, 1000)
+								.getData());
+
+						System.out.println(msg);
 
 						if (!msg.equals("IRDecode: ERR")) {
 
@@ -333,13 +346,14 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 
 							return; // Close input is already done by board
 						}
-
-						Thread.sleep(500);
 					}
 
 					mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_DISABLE_ICC,
 							"timeoutClose");
-					mIrAdm.RecvPacket(false);
+					if (null == mIrAdm.RecvPacket(false, 1000)) {
+						excep = true;
+						return; // exception
+					}
 
 					mMainHandler.sendEmptyMessage(MSG_IR_STUDY_TIMEOUT);
 					return;
@@ -347,10 +361,12 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 				} catch (Exception e) {
 
 					e.printStackTrace();
-					mMainHandler.sendEmptyMessage(MSG_IR_STUDY_EXCEP);
 
 				} finally {
 
+					if (excep) {
+						mMainHandler.sendEmptyMessage(MSG_IR_STUDY_EXCEP);
+					}
 					mMainHandler.sendEmptyMessageAtTime(MSG_IR_STUDY_STOP, 200);
 				}
 			}
