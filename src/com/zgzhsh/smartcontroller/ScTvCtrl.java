@@ -115,24 +115,33 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 
 			@Override
 			public void handleMessage(Message msg) {
+
+				UserData udata = null;
+				String pkt = null;
+
 				super.handleMessage(msg);
 				switch (msg.what) {
 				case MSG_IR_SEND_NEC:
 					try {
+						System.out.println("[IRSend]" + (String) msg.obj);
+
 						mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_SEND,
 								(String) msg.obj);
 
-						if (new String(mIrAdm.RecvPacket(false, 1000).getData())
-								.equals("IRSendNEC: OK")) {
-							mMainHandler.sendEmptyMessage(MSG_IR_SEND_OK);
-						} else {
-							mMainHandler.sendEmptyMessage(MSG_IR_SEND_FAILED);
-						}
+						udata = mIrAdm.RecvPacket(false, 1000);
 
+						if (null == udata) {
+							mMainHandler.sendEmptyMessage(MSG_IR_SEND_EXCEP);
+						} else {
+							pkt = new String(udata.getData());
+							if (!pkt.equals("IRSendNEC: OK")) {
+								mMainHandler
+										.sendEmptyMessage(MSG_IR_SEND_FAILED);
+							}
+						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
-						mMainHandler.sendEmptyMessage(MSG_IR_SEND_EXCEP);
+						// e.printStackTrace();
 					}
 					break;
 				default:
@@ -210,7 +219,6 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 			Toast.makeText(this, getString(R.string.irs_txt_empty),
 					Toast.LENGTH_LONG).show();
 		} else {
-			System.out.println("[IR Send]" + keyVal);
 			Message msg = mSubHandler.obtainMessage(MSG_IR_SEND_NEC, 1, 1,
 					keyVal);
 			mSubHandler.sendMessage(msg);
@@ -283,15 +291,26 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 				// TODO Auto-generated method stub
 				String msg = null;
 				boolean excep = false;
+				UserData udata = null;
 
 				try {
 
 					// setup a connect
 					mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_CONNECT,
 							"setup_connect");
-					if (null == mIrAdm.RecvPacket(false, 1000)) {
+					udata = mIrAdm.RecvPacket(false, 1000);
+					if (null == udata) {
+						System.out
+								.println("[IR Study] connect err: no data received!");
 						excep = true;
 						return; // exception
+					} else {
+						msg = new String(udata.getData());
+						if (!msg.equals("IRConnect: OK")) {
+							System.out.println("[IR Study] connect ack err: "
+									+ msg);
+							return;
+						}
 					}
 
 					Thread.sleep(100);
@@ -299,9 +318,19 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 					// enable input capture
 					mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_ENABLE_ICC,
 							"enable_icc");
-					if (null == mIrAdm.RecvPacket(false, 1000)) {
+					udata = mIrAdm.RecvPacket(false, 1000);
+					if (null == udata) {
+						System.out
+								.println("[IR Study] enable err: no data received!");
 						excep = true;
 						return; // exception
+					} else {
+						msg = new String(udata.getData());
+						if (!msg.equals("IREnableICC: OK")) {
+							System.out.println("[IR Study] enable ack err: "
+									+ msg);
+							return;
+						}
 					}
 
 					Thread.sleep(100);
@@ -328,23 +357,31 @@ public class ScTvCtrl extends Activity implements OnClickListener,
 
 						mIrAdm.sendPacket(ScConstants.PKT_SUBTYPE_IR_DECODE,
 								"check_decode");
-						msg = new String(mIrAdm.RecvPacket(false, 1000)
-								.getData());
+						udata = mIrAdm.RecvPacket(false, 1000);
+						if (null == udata) {
+							System.out
+									.println("[IR Study] decode err: no data received!");
+							excep = true;
+							return; // exception
+						} else {
+							msg = new String(udata.getData());
+							System.out.println(msg);
 
-						System.out.println(msg);
-
-						if (!msg.equals("IRDecode: ERR")) {
-
-							// get the value string
 							String a[] = msg.split(" ");
+							if (a[0].equals("IRDecode:") && !a[1].equals("ERR")) {
 
-							// save to local flash
-							mIrAdm.saveKey(mCurConstKey, a[1]);
+								System.out
+										.println("[IRDecode] decode ok received!");
 
-							// update UI
-							mMainHandler.sendEmptyMessage(MSG_IR_STUDY_SUCCESS);
+								// save to local flash
+								mIrAdm.saveKey(mCurConstKey, a[1]);
 
-							return; // Close input is already done by board
+								// update UI
+								mMainHandler
+										.sendEmptyMessage(MSG_IR_STUDY_SUCCESS);
+
+								return; // Close input is already done by board
+							}
 						}
 					}
 
